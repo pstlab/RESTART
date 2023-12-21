@@ -117,5 +117,5 @@ stateDiagram-v2
     direction LR
     CognitiveActivity --> WellBeing
     PhysicalActivity --> WellBeing
-    Note right of WellBeing: ca.start >= 10:00 && ca.end <= 12:00<br/>pa.start >= 15:00 && pa.end <= 17:00
+    Note right of WellBeing: ca.start >= 10 & ca.end <= 12<br/>pa.start >= 15 & pa.end <= 17
 ```
