@@ -1,0 +1,21 @@
+services:
+
+  restart-db:
+    image: mongo
+    restart: always
+  
+  rasa-duckling:
+    image: rasa/duckling
+    restart: always
+
+  restart-dashboard:
+    image: restart-dashboard
+    ports:
+      - "8080:8080"
+    depends_on:
+      - restart-db
+    restart: always
+    build:
+      context: .
+      args:
+        - MONGO_HOST=restart-db
