@@ -50,7 +50,7 @@ stateDiagram-v2
     PhysicalActivity --> WellBeing
     note right of WellBeing
         ca.start >= 10:00 #8743; ca.end <= 12:00
-        pa.start >= 12:00 #8743; pa.end <= 17:00
+        pa.start >= 15:00 #8743; pa.end <= 17:00
     end note
 ```
 
