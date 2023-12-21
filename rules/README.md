@@ -9,10 +9,22 @@ This directory contains the rules for the RESTART project. There are two types o
 
 The follwoing rules are defined:
 
+* **FindUser**: Finds the user.
 * **Awake**: Checks if the user is awake. If the user is lying down, the rule will trigger an alert.
 * **Remind**: Reminds something to the user. If the user does not respond, the rule will trigger an alert.
 * **PhysicalStimulation**: Stimulates the user to perform physical activity.
 * **CognitiveStimulation**: Stimulates the user to perform cognitive activity.
+
+The following diagram describes the **FindUser** rule:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> FindUser
+    FindUser --> [*]: Found
+    FindUser --> Alert: Not found
+    Alert --> [*]
+```
 
 The following diagram describes the **Awake** rule:
 
