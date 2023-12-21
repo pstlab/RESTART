@@ -89,7 +89,7 @@ The following diagram describes the **FindUser** rule:
 stateDiagram-v2
     direction LR
     FindUser
-    Note right of FindUser: duration <= 60
+    Note right of FindUser: duration <= 1m
 ```
 
 The following diagram describes the **PhysicalActivity** rule:
@@ -98,7 +98,7 @@ The following diagram describes the **PhysicalActivity** rule:
 stateDiagram-v2
     direction LR
     FindUser --> PhysicalActivity
-    Note right of PhysicalActivity: duration <= 300<br/>fu.end == start
+    Note right of PhysicalActivity: duration <= 5m<br/>fu.end == start
 ```
 
 The following diagram describes the **CognitiveActivity** rule:
@@ -107,7 +107,7 @@ The following diagram describes the **CognitiveActivity** rule:
 stateDiagram-v2
     direction LR
     FindUser --> CognitiveActivity
-    Note right of CognitiveActivity: duration <= 300<br/>fu.end == start
+    Note right of CognitiveActivity: duration <= 5m<br/>fu.end == start
 ```
 
 The following diagram describes the **WellBeing** rule:
@@ -117,5 +117,8 @@ stateDiagram-v2
     direction LR
     CognitiveActivity --> WellBeing
     PhysicalActivity --> WellBeing
-    Note right of WellBeing: ca.start >= 10 & ca.end <= 12<br/>pa.start >= 15 & pa.end <= 17
+    note right of WellBeing
+        ca.start >= 10:00 #8743; ca.end <= 12:00
+        pa.start >= 12:00 #8743; pa.end <= 17:00
+    end note
 ```
