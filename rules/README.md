@@ -2,8 +2,57 @@
 
 This directory contains the rules for the RESTART project. There are two types of rules:
 
-* **Reactive rules**: These rules are triggered by events.
 * **Deliberative rules**: These rules are used to plan activities.
+* **Reactive rules**: These rules are triggered by events.
+
+## Deliberative Rules
+
+The following rules are defined:
+
+* **FindUser**: Finds the user.
+* **PhysicalActivity**: Plans a physical activity.
+* **CognitiveActivity**: Plans a cognitive activity.
+* **WellBeing**: Plans a well-being activity.
+
+The following diagram describes the **FindUser** rule:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    FindUser
+    Note right of FindUser: duration <= 1m
+```
+
+The following diagram describes the **PhysicalActivity** rule:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    FindUser --> PhysicalActivity
+    Note right of PhysicalActivity: duration <= 5m<br/>fu.end == start
+```
+
+The following diagram describes the **CognitiveActivity** rule:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    FindUser --> CognitiveActivity
+    Note right of CognitiveActivity: duration <= 5m<br/>fu.end == start
+```
+
+The following diagram describes the **WellBeing** rule:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    CognitiveActivity --> WellBeing
+    PhysicalActivity --> WellBeing
+    note right of WellBeing
+        ca.start >= 10:00 #8743; ca.end <= 12:00
+        pa.start >= 12:00 #8743; pa.end <= 17:00
+    end note
+```
 
 ## Reactive Rules
 
@@ -86,51 +135,16 @@ stateDiagram-v2
     Alert --> [*]
 ```
 
-## Deliberative Rules
+## Low-level commands
 
-The following rules are defined:
+The following low-level commands are defined:
 
-* **FindUser**: Finds the user.
-* **PhysicalActivity**: Plans a physical activity.
-* **CognitiveActivity**: Plans a cognitive activity.
-* **WellBeing**: Plans a well-being activity.
-
-The following diagram describes the **FindUser** rule:
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    FindUser
-    Note right of FindUser: duration <= 1m
-```
-
-The following diagram describes the **PhysicalActivity** rule:
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    FindUser --> PhysicalActivity
-    Note right of PhysicalActivity: duration <= 5m<br/>fu.end == start
-```
-
-The following diagram describes the **CognitiveActivity** rule:
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    FindUser --> CognitiveActivity
-    Note right of CognitiveActivity: duration <= 5m<br/>fu.end == start
-```
-
-The following diagram describes the **WellBeing** rule:
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    CognitiveActivity --> WellBeing
-    PhysicalActivity --> WellBeing
-    note right of WellBeing
-        ca.start >= 10:00 #8743; ca.end <= 12:00
-        pa.start >= 12:00 #8743; pa.end <= 17:00
-    end note
-```
+* **FindUser**: Finds the user. The robot navigates inside the house until the user is found.
+* **CheckPose**: Checks the user's pose. Through ... **what?**, the robot checks if the user is standing or sitting. If the user is lying down, the robot triggers an alert.
+* **Check(topic)**: Checks if the user has done something. Through verbal interaction, the robot checks if the user has done something.
+* **Remind(topic)**: Reminds something to the user. Through verbal interaction, the robot reminds something to the user.
+* **SuggestPhysicalActivity(activity)**: Suggests a physical activity to the user. Through verbal interaction, the robot suggests a physical activity to the user.
+* **SuggestCognitiveActivity(activity)**: Suggests a cognitive activity to the user. Through verbal interaction, the robot suggests a cognitive activity to the user.
+* **PerformAudioActivity(activity)**: Performs an audio activity. The robot plays an audio.
+* **PerformVideoActivity(activity)**: Performs a video activity. The robot plays a video.
+* **PerformGameActivity(activity)**: Performs a game activity. The robot starts a game.
