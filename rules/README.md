@@ -62,10 +62,10 @@ gantt
     dateFormat HH:mm
     axisFormat %H:%M
     section Plan
-        FindUser         :a1, 10:59, 1m
-        PhysicalActivity :a2, after a1, 3m
-        FindUser         :a3, 14:59, 1m
-        PhysicalActivity :a4, after a3, 4m
+        FindUser          :a1, 10:59, 1m
+        CognitiveActivity :a2, after a1, 3m
+        FindUser          :a3, 14:59, 1m
+        PhysicalActivity  :a4, after a3, 4m
 ```
 
 ## Reactive Rules
