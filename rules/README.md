@@ -54,6 +54,20 @@ stateDiagram-v2
     end note
 ```
 
+The following diagram describes a possible plan for achieving a **WellBeing** goal:
+
+```mermaid
+gantt
+    title A well being plan
+    dateFormat HH:mm
+    axisFormat %H:%M
+    section Plan
+        FindUser         :a1, 10:59, 1m
+        PhysicalActivity :a2, after a1, 3m
+        FindUser         :a3, 14:59, 1m
+        PhysicalActivity :a4, after a3, 4m
+```
+
 ## Reactive Rules
 
 The follwoing rules are defined:
