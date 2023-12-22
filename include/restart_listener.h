@@ -7,6 +7,6 @@ namespace restart
   {
   public:
     restart_listener(restart_app &app) : coco_listener(app) {}
-    virtual ~restart_listener() {}
+    virtual ~restart_listener() = default;
   };
 } // namespace restart
