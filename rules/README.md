@@ -50,8 +50,22 @@ stateDiagram-v2
     PhysicalActivity --> WellBeing
     note right of WellBeing
         ca.start >= 10:00 #8743; ca.end <= 12:00
-        pa.start >= 12:00 #8743; pa.end <= 17:00
+        pa.start >= 15:00 #8743; pa.end <= 17:00
     end note
+```
+
+The following diagram describes a possible plan for achieving a **WellBeing** goal:
+
+```mermaid
+gantt
+    title A well being plan
+    dateFormat HH:mm
+    axisFormat %H:%M
+    section Plan
+        FindUser          :a1, 10:59, 1m
+        CognitiveActivity :a2, after a1, 3m
+        FindUser          :a3, 14:59, 1m
+        PhysicalActivity  :a4, after a3, 4m
 ```
 
 ## Reactive Rules
