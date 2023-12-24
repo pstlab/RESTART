@@ -1,0 +1,60 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - ciao
+      - buongiorno
+      - buonasera
+      - buonanotte
+      - salve
+      - saluti
+      - ciao ciao
+      - ciao bella
+      - ciao bello
+      - hey
+
+  - intent: goodbye
+    examples: |
+      - arrivederci
+      - a presto
+      - ci vediamo
+      - alla prossima
+      - arrivederla
+      - a dopo 
+      - a fra poco 
+      - ti farò sapere
+
+  - intent: affirm
+    examples: |
+      - si
+      - certo
+      - esatto
+      - sicuro
+      - certamente
+      - assolutamente
+      - decisamente
+      - ovviamente
+      - certo che si
+      - ma certo
+      - senza dubbio
+      - senza ombra di dubbio
+
+  - intent: deny
+    examples: |
+      - no
+      - no grazie
+      - no non serve
+      - no non è necessario
+      - no non è il caso
+      - no non è il caso di farlo
+      - no non è il caso di farlo ora
+      - no non è il caso di farlo adesso
+      - non voglio
+      - non lo voglio
+      - non lo so
+      - non lo sono
+      - non lo faccio
+      - non lo farò
+      - non saprei
+      - non ne ho idea

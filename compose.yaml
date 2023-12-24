@@ -1,5 +1,4 @@
 services:
-
   restart-db:
     image: mongo
     restart: always
@@ -7,13 +6,28 @@ services:
   rasa-duckling:
     image: rasa/duckling
     restart: always
+  
+  restart-rasa-actions:
+    image: restart-rasa-actions
+    restart: always
+    build:
+      context: ./language/actions
 
-  restart-dashboard:
-    image: restart-dashboard
+  restart-rasa:
+    image: restart-rasa
+    restart: always
+    build:
+      context: ./language
+
+  restart-system:
+    image: restart-system
     ports:
       - "8080:8080"
     depends_on:
       - restart-db
+      - rasa-duckling
+      - restart-rasa-actions
+      - restart-rasa
     restart: always
     build:
       context: .

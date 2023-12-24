@@ -1,0 +1,14 @@
+version: "3.1"
+
+stories:
+  - story: greet path 1
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - action: action_start_listening
+
+  - story: goodbye path 1
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+      - action: action_stop_dialogue

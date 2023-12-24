@@ -1,0 +1,57 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+
+entities:
+  - location
+  - number
+
+responses:
+  utter_greet:
+    - text: "Ciao! Come posso aiutarti?"
+    - text: "Salve! Come posso aiutarti?"
+    - text: "Ciao! Come posso esserti utile?"
+    - text: "Salve! Come posso esserti utile?"
+    - text: "Ciao! Cosa posso fare per te?"
+    - text: "Salve! Cosa posso fare per te?"
+
+  utter_goodbye:
+    - text: "A presto!"
+    - text: "Arrivederci!"
+    - text: "Alla prossima!"
+    - text: "Ci vediamo!"
+
+  utter_default:
+    - text: "Non ho capito. Puoi ripetere?"
+    - text: "Puoi ripetere?"
+    - text: "Non ho capito bene. Ripeti."
+
+  utter_ok:
+    - text: "Va bene."
+    - text: "Ok."
+    - text: "Perfetto."
+    - text: "Bene."
+
+  utter_very_good:
+    - text: "Molto bene."
+    - text: "Ottimo."
+    - text: "Molto bene, continua così."
+    - text: "Ottimo, continua così."
+
+  utter_bad:
+    - text: "Non va bene."
+    - text: "Non bene."
+    - text: "Non va bene, riprova."
+    - text: "Non bene, riprova."
+
+actions:
+  - action_start_listening
+  - action_stop_dialogue
+
+session_config:
+  session_expiration_time: 6000
+  carry_over_slots_to_new_session: true
