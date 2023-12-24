@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 WORKDIR /home
-RUN apt-get update && apt-get install build-essential libboost-all-dev cmake libssl-dev wget curl python3 -y
+RUN apt-get update && apt-get install build-essential libboost-all-dev cmake libssl-dev git wget curl python3 -y
 
 # Define environment variables
 ARG GITHUB_TOKEN=no_token
@@ -34,7 +34,7 @@ WORKDIR /home
 RUN curl -OL https://github.com/mongodb/mongo-cxx-driver/releases/download/r3.9.0/mongo-cxx-driver-r3.9.0.tar.gz
 RUN tar -xzf mongo-cxx-driver-r3.9.0.tar.gz
 WORKDIR /home/mongo-cxx-driver-r3.9.0/build
-RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DMONGOCXX_OVERRIDE_DEFAULT_INSTALL_PREFIX=OFF -DBUILD_VERSION=3.9.0
 RUN cmake --build .
 RUN cmake --build . --target install
 
@@ -49,8 +49,7 @@ WORKDIR /home
 RUN git clone --recursive https://github.com/pstlab/RESTART
 WORKDIR /home/RESTART
 RUN mkdir build && cd build && cmake -DVERBOSE_LOG=ON -DMONGODB_HOST=${MONGODB_HOST} -DMONGODB_PORT=${MONGODB_PORT} .. && make
-# COPY ./rules /home/rules
-# CMD /home/RESTART/build/bin/RESTART -rules /home/rules/rules.clp
+COPY ./rules /home/rules
 
 # Install the front-end
 WORKDIR /home/RESTART/client
