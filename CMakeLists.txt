@@ -13,13 +13,14 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 add_subdirectory(extern/coco)
+add_subdirectory(extern/rationet)
 
 file(GLOB RESTART_SOURCES src/*.cpp)
 file(GLOB RESTART_HEADERS include/*.h)
 
 add_executable(${PROJECT_NAME} ${RESTART_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
-target_link_libraries(${PROJECT_NAME} PRIVATE COCO)
+target_link_libraries(${PROJECT_NAME} PRIVATE COCO ratioNet)
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)
