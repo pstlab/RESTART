@@ -1,6 +1,9 @@
 # use a python container as a starting point
 FROM python:3.10-slim
 
+# Expose the port that Rasa uses to run
+EXPOSE 5005
+
 # Install Rasa and spaCy
 RUN pip3 install rasa spacy
 
