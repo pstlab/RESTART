@@ -20,4 +20,4 @@ RUN rasa train
 VOLUME "/app/models"
 
 # Run the app when the container launches
-CMD [ "rasa" "run", "--enable-api", "--cors", "*", "--debug" ]
+CMD [ "rasa", "run", "--enable-api", "--cors", "*", "--debug" ]

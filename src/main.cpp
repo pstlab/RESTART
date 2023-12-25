@@ -16,5 +16,7 @@ int main(int argc, char **argv)
 
     app.load_rules(rules);
 
+    app.server::start();
+
     return 0;
 }

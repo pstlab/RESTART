@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install build-essential libboost-all-dev cmake lib
 
 # Define environment variables
 ARG GITHUB_TOKEN=no_token
-ARG MONGODB_HOST=ui-mongo
+ARG MONGODB_HOST=restart-db
 ARG MONGODB_PORT=27017
 
 # Configure Git to use the GitHub token

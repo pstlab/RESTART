@@ -1,25 +1,30 @@
 services:
   restart-db:
+    container_name: restart-db
     image: mongo
     restart: always
-  
+
   rasa-duckling:
+    container_name: rasa-duckling
     image: rasa/duckling
     restart: always
-  
+
   restart-rasa-actions:
+    container_name: restart-rasa-actions
     image: restart-rasa-actions
     restart: always
     build:
       context: ./language/actions
 
   restart-rasa:
+    container_name: restart-rasa
     image: restart-rasa
     restart: always
     build:
       context: ./language
 
   restart-system:
+    container_name: restart-system
     image: restart-system
     ports:
       - "8080:8080"
