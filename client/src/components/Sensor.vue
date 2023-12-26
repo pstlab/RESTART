@@ -62,7 +62,7 @@ onMounted(() => {
         if (j > 0)
           traces[traces.length - 1].x[1] = vals_xs[j];
         if (j == 0 || String(vals_ys.get(par_name)[j]) != traces[traces.length - 1].name) {
-          let trace = { x: [vals_xs[j], vals_xs[j] + 1], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', mode: 'lines', line: { width: 30 }, yaxis: 'y' + i };
+          let trace = { x: [vals_xs[j], vals_xs[j] + 1], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: 'y' + i };
           if (par instanceof BooleanParameter || par instanceof SymbolParameter)
             trace.line.color = colors.get(String(vals_ys.get(par_name)[j]));
           traces.push(trace);
