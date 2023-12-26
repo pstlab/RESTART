@@ -1,7 +1,7 @@
 <template>
   <v-window-item class="fill-height" :value="sensor.id" eager>
     <v-card :title="sensor.name" :subtitle="sensor.description">
-      <v-card-text class="fill-height" :id="sensor.id" />
+      <v-container :id="sensor.id" :style="{ height: sensor.type.parameters.size * 200 + 'px' }" />
     </v-card>
   </v-window-item>
 </template>
@@ -10,6 +10,7 @@
 import { Sensor, BooleanParameter, IntegerParameter, FloatParameter, StringParameter, SymbolParameter } from '@/sensor';
 import { onMounted } from 'vue';
 import Plotly from 'plotly.js-dist-min';
+import chroma from 'chroma-js'
 
 const props = defineProps({
   sensor: {
@@ -31,7 +32,7 @@ onMounted(() => {
   }
 
   const traces = [];
-  let layout = { title: props.sensor.name, xaxis: { title: 'Time', type: 'date' }, barmode: 'stack', showlegend: false };
+  let layout = { xaxis: { title: 'Time', type: 'date' }, showlegend: false };
   let i = 1;
   let start_domain = 0;
   let domain_size = 1 / props.sensor.type.parameters.size;
@@ -47,11 +48,25 @@ onMounted(() => {
       }
     }
     else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
+      let colors = new Map();
+      if (par instanceof BooleanParameter) {
+        colors.set('true', '#00ff00');
+        colors.set('false', '#ff0000');
+      } else if (par instanceof SymbolParameter) {
+        const color_scale = chroma.scale(['#ff0000', '#00ff00']).mode('lch').colors(par.symbols.length);
+        for (let j = 0; j < par.symbols.length; j++)
+          colors.set(par.symbols[j], color_scale[j]);
+      }
+
       for (let j = 0; j < vals_ys.get(par_name).length; j++) {
         if (j > 0)
           traces[traces.length - 1].x[1] = vals_xs[j];
-        if (j == 0 || String(vals_ys.get(par_name)[j]) != traces[traces.length - 1].name)
-          traces.push({ x: [vals_xs[j], vals_xs[j] + 1], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', mode: 'lines', line: { width: 10 }, yaxis: 'y' + i });
+        if (j == 0 || String(vals_ys.get(par_name)[j]) != traces[traces.length - 1].name) {
+          let trace = { x: [vals_xs[j], vals_xs[j] + 1], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', mode: 'lines', line: { width: 30 }, yaxis: 'y' + i };
+          if (par instanceof BooleanParameter || par instanceof SymbolParameter)
+            trace.line.color = colors.get(String(vals_ys.get(par_name)[j]));
+          traces.push(trace);
+        }
       }
 
       if (i == 1)
