@@ -49,8 +49,40 @@ export class Sensor {
         this.type = type;
         this.description = description;
         this.location = location;
-        this.lastValue = new Map();
-        this.lastState = new Map();
-        this.lastUpdate = new Date();
+        this.lastValue = undefined;
+        this.lastState = undefined;
+        this.lastUpdate = undefined;
+        this.values = [];
+        this.valueTimestamps = [];
+        this.states = [];
+        this.stateTimestamps = [];
+    }
+
+    setValues(values, timestamps) {
+        this.values = values;
+        this.valueTimestamps = timestamps;
+        this.lastValue = values[values.length - 1];
+        this.lastUpdate = timestamps[timestamps.length - 1];
+    }
+
+    addValue(value, timestamp) {
+        this.lastValue = value;
+        this.lastUpdate = timestamp;
+        this.values.push(value);
+        this.valueTimestamps.push(timestamp);
+    }
+
+    setStates(states, timestamps) {
+        this.states = states;
+        this.stateTimestamps = timestamps;
+        this.lastState = states[states.length - 1];
+        this.lastUpdate = timestamps[timestamps.length - 1];
+    }
+
+    addState(state, timestamp) {
+        this.lastState = state;
+        this.lastUpdate = timestamp;
+        this.states.push(state);
+        this.stateTimestamps.push(timestamp);
     }
 }
