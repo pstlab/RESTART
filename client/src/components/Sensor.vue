@@ -22,6 +22,7 @@ const props = defineProps({
 onMounted(() => {
   let vals_xs = [];
   const vals_ys = new Map();
+  const y_axes = new Map();
   for (const [par_name, par] of props.sensor.type.parameters)
     vals_ys.set(par_name, []);
 
@@ -31,7 +32,8 @@ onMounted(() => {
       vals_ys.get(par_name).push(props.sensor.values[i][par_name]);
   }
 
-  const traces = [];
+  const traces = new Map();
+  const colors = new Map();
   let layout = { xaxis: { title: 'Time', type: 'date' }, showlegend: false };
   let i = 1;
   let start_domain = 0;
@@ -39,45 +41,75 @@ onMounted(() => {
   for (const [par_name, par] of props.sensor.type.parameters) {
     if (par instanceof FloatParameter || par instanceof IntegerParameter) {
       if (i == 1) {
-        traces.push({ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter' });
+        y_axes.set(par_name, 'y');
+        traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter' }]);
         layout['yaxis'] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [par.min, par.max] };
       }
       else {
-        traces.push({ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter', yaxis: 'y' + i });
+        y_axes.set(par_name, 'y' + i);
+        traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter', yaxis: 'y' + i }]);
         layout['yaxis' + i] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [par.min, par.max] };
       }
     }
     else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
-      let colors = new Map();
+      traces.set(par_name, []);
+      let c_colors = new Map();
       if (par instanceof BooleanParameter) {
-        colors.set('true', '#00ff00');
-        colors.set('false', '#ff0000');
+        c_colors.set('true', '#00ff00');
+        c_colors.set('false', '#ff0000');
+        colors.set(par_name, c_colors);
       } else if (par instanceof SymbolParameter) {
         const color_scale = chroma.scale(['#ff0000', '#00ff00']).mode('lch').colors(par.symbols.length);
         for (let j = 0; j < par.symbols.length; j++)
-          colors.set(par.symbols[j], color_scale[j]);
+          c_colors.set(par.symbols[j], color_scale[j]);
+        colors.set(par_name, c_colors);
+      }
+
+      if (i == 1) {
+        y_axes.set(par_name, 'y');
+        layout['yaxis'] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
+      }
+      else {
+        y_axes.set(par_name, 'y' + i);
+        layout['yaxis' + i] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
       }
 
       for (let j = 0; j < vals_ys.get(par_name).length; j++) {
         if (j > 0)
-          traces[traces.length - 1].x[1] = vals_xs[j];
-        if (j == 0 || String(vals_ys.get(par_name)[j]) != traces[traces.length - 1].name) {
-          let trace = { x: [vals_xs[j], vals_xs[j] + 1], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: 'y' + i };
+          traces.get(par_name)[traces.get(par_name).length - 1].x[1] = vals_xs[j];
+        if (j == 0 || String(vals_ys.get(par_name)[j]) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
+          let trace = { x: [vals_xs[j], vals_xs[j]], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: 'y' + i };
           if (par instanceof BooleanParameter || par instanceof SymbolParameter)
-            trace.line.color = colors.get(String(vals_ys.get(par_name)[j]));
-          traces.push(trace);
+            trace.line.color = c_colors.get(String(vals_ys.get(par_name)[j]));
+          traces.get(par_name).push(trace);
         }
       }
-
-      if (i == 1)
-        layout['yaxis'] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
-      else
-        layout['yaxis' + i] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
     }
     start_domain += domain_size;
     i++;
   }
 
-  Plotly.newPlot(props.sensor.id, traces, layout);
+  props.sensor.addValueListener((value, timestamp) => {
+    vals_xs.push(timestamp);
+    for (const [par_name, par] of props.sensor.type.parameters) {
+      if (par instanceof FloatParameter || par instanceof IntegerParameter)
+        traces.get(par_name)[0].y.push(value[par_name]);
+      else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
+        if (traces.get(par_name).length > 0)
+          traces.get(par_name)[traces.get(par_name).length - 1].x[1] = timestamp;
+        if (String(value[par_name]) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
+          let trace = { x: [timestamp, timestamp], y: [1, 1], name: String(value[par_name]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
+          if (par instanceof BooleanParameter || par instanceof SymbolParameter)
+            trace.line.color = colors.get(par_name).get(String(value[par_name]));
+          traces.get(par_name).push(trace);
+        }
+      }
+    }
+    layout.datarevision = timestamp;
+    console.log(Array.from(traces.values()).flat());
+    Plotly.react(props.sensor.id, Array.from(traces.values()).flat(), layout);
+  });
+
+  Plotly.newPlot(props.sensor.id, Array.from(traces.values()).flat(), layout);
 });
 </script>

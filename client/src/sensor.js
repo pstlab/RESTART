@@ -56,6 +56,7 @@ export class Sensor {
         this.valueTimestamps = [];
         this.states = [];
         this.stateTimestamps = [];
+        this.value_listeners = [];
     }
 
     setValues(values, timestamps) {
@@ -65,11 +66,12 @@ export class Sensor {
         this.lastUpdate = timestamps[timestamps.length - 1];
     }
 
-    addValue(value, timestamp) {
+    addValue(value, timestamp = new Date().getTime()) {
         this.lastValue = value;
         this.lastUpdate = timestamp;
         this.values.push(value);
         this.valueTimestamps.push(timestamp);
+        this.value_listeners.forEach(l => l(value, timestamp));
     }
 
     setStates(states, timestamps) {
@@ -84,5 +86,13 @@ export class Sensor {
         this.lastUpdate = timestamp;
         this.states.push(state);
         this.stateTimestamps.push(timestamp);
+    }
+
+    addValueListener(callback) {
+        this.value_listeners.push(callback);
+    }
+
+    removeValueListener(callback) {
+        this.value_listeners = this.value_listeners.filter(l => l !== callback);
     }
 }

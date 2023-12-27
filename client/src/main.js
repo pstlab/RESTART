@@ -14,6 +14,7 @@ import App from './App.vue';
 
 // Composables
 import { createApp } from 'vue';
+import { random } from 'chroma-js';
 
 const app = createApp(App);
 
@@ -33,8 +34,18 @@ store.sensors.get("1").setValues([
     { temperature: 22, humidity: 52, pressure: 82, connected: false },
     { temperature: 23, humidity: 53, pressure: 83, connected: true }
 ], [
-    new Date(2024, 0, 1, 0, 0, 0),
-    new Date(2024, 0, 1, 0, 0, 1),
-    new Date(2024, 0, 1, 0, 0, 2),
-    new Date(2024, 0, 1, 0, 0, 3)]
+    new Date() - 1000 * 60 * 4,
+    new Date() - 1000 * 60 * 3,
+    new Date() - 1000 * 60 * 2,
+    new Date() - 1000 * 60 * 1
+]
 );
+
+setInterval(() => {
+    store.sensors.get("1").addValue({
+        temperature: Math.floor(Math.random() * 10) + 20,
+        humidity: Math.floor(Math.random() * 10) + 50,
+        pressure: Math.floor(Math.random() * 10) + 80,
+        connected: Math.random() > 0.5
+    });
+}, 2000);
