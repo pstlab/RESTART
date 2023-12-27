@@ -8,7 +8,7 @@
 
 <script setup>
 import { Sensor, BooleanParameter, IntegerParameter, FloatParameter, StringParameter, SymbolParameter } from '@/sensor';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import Plotly from 'plotly.js-dist-min';
 import chroma from 'chroma-js'
 
@@ -19,10 +19,41 @@ const props = defineProps({
   }
 });
 
+const vals_xs = [];
+const vals_ys = new Map();
+const y_axes = new Map();
+const traces = new Map();
+const layout = { xaxis: { title: 'Time', type: 'date' }, showlegend: false };
+const colors = new Map();
+
+const value_listener = (value, timestamp) => {
+  vals_xs.push(timestamp);
+  for (const [par_name, par] of props.sensor.type.parameters) {
+    let c_value;
+    if (value.hasOwnProperty(par_name))
+      c_value = value[par_name];
+    else if (vals_ys.get(par_name).length > 0)
+      c_value = vals_ys.get(par_name)[vals_ys.get(par_name).length - 1];
+    else
+      c_value = par.default_value;
+    if (par instanceof FloatParameter || par instanceof IntegerParameter)
+      traces.get(par_name)[0].y.push(c_value);
+    else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
+      if (traces.get(par_name).length > 0)
+        traces.get(par_name)[traces.get(par_name).length - 1].x[1] = timestamp;
+      if (String(c_value) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
+        let trace = { x: [timestamp, timestamp], y: [1, 1], name: String(c_value), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
+        if (par instanceof BooleanParameter || par instanceof SymbolParameter)
+          trace.line.color = colors.get(par_name).get(String(c_value));
+        traces.get(par_name).push(trace);
+      }
+    }
+  }
+  layout.datarevision = timestamp;
+  Plotly.react(props.sensor.id, Array.from(traces.values()).flat(), layout);
+};
+
 onMounted(() => {
-  let vals_xs = [];
-  const vals_ys = new Map();
-  const y_axes = new Map();
   for (const [par_name, par] of props.sensor.type.parameters)
     vals_ys.set(par_name, []);
 
@@ -37,9 +68,6 @@ onMounted(() => {
         vals_ys.get(par_name).push(par.default_value);
   }
 
-  const traces = new Map();
-  const colors = new Map();
-  let layout = { xaxis: { title: 'Time', type: 'date' }, showlegend: false };
   let i = 1;
   let start_domain = 0;
   let domain_size = 1 / props.sensor.type.parameters.size;
@@ -94,34 +122,12 @@ onMounted(() => {
     i++;
   }
 
-  props.sensor.addValueListener((value, timestamp) => {
-    vals_xs.push(timestamp);
-    for (const [par_name, par] of props.sensor.type.parameters) {
-      let c_value;
-      if (value.hasOwnProperty(par_name))
-        c_value = value[par_name];
-      else if (vals_ys.get(par_name).length > 0)
-        c_value = vals_ys.get(par_name)[vals_ys.get(par_name).length - 1];
-      else
-        c_value = par.default_value;
-      if (par instanceof FloatParameter || par instanceof IntegerParameter)
-        traces.get(par_name)[0].y.push(c_value);
-      else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
-        if (traces.get(par_name).length > 0)
-          traces.get(par_name)[traces.get(par_name).length - 1].x[1] = timestamp;
-        if (String(c_value) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
-          let trace = { x: [timestamp, timestamp], y: [1, 1], name: String(c_value), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
-          if (par instanceof BooleanParameter || par instanceof SymbolParameter)
-            trace.line.color = colors.get(par_name).get(String(c_value));
-          traces.get(par_name).push(trace);
-        }
-      }
-    }
-    layout.datarevision = timestamp;
-    console.log(Array.from(traces.values()).flat());
-    Plotly.react(props.sensor.id, Array.from(traces.values()).flat(), layout);
-  });
+  props.sensor.addValueListener(value_listener);
 
   Plotly.newPlot(props.sensor.id, Array.from(traces.values()).flat(), layout);
+});
+
+onUnmounted(() => {
+  props.sensor.removeValueListener(value_listener);
 });
 </script>
