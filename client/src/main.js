@@ -48,4 +48,4 @@ setInterval(() => {
         pressure: Math.floor(Math.random() * 10) + 80,
         connected: Math.random() > 0.5
     });
-}, 2000);
+}, 1000);

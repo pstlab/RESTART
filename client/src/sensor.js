@@ -1,34 +1,34 @@
 export class Parameter {
-    constructor(name) { this.name = name; }
+    constructor(name, default_value = undefined) { this.name = name; this.default_value = default_value; }
 }
 
 export class BooleanParameter extends Parameter {
-    constructor(name) { super(name); }
+    constructor(name, default_value = false) { super(name, default_value); }
 }
 
 export class IntegerParameter extends Parameter {
-    constructor(name, min, max) {
-        super(name);
+    constructor(name, min, max, default_value = min) {
+        super(name, default_value);
         this.min = min;
         this.max = max;
     }
 }
 
 export class FloatParameter extends Parameter {
-    constructor(name, min, max) {
-        super(name);
+    constructor(name, min, max, default_value = min) {
+        super(name, default_value);
         this.min = min;
         this.max = max;
     }
 }
 
 export class StringParameter extends Parameter {
-    constructor(name) { super(name); }
+    constructor(name, default_value = "") { super(name, default_value); }
 }
 
 export class SymbolParameter extends Parameter {
-    constructor(name, symbols) {
-        super(name);
+    constructor(name, symbols, default_value = symbols[0]) {
+        super(name, default_value);
         this.symbols = symbols;
     }
 }

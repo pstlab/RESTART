@@ -29,7 +29,12 @@ onMounted(() => {
   for (let i = 0; i < props.sensor.values.length; i++) {
     vals_xs.push(props.sensor.valueTimestamps[i]);
     for (const [par_name, par] of props.sensor.type.parameters)
-      vals_ys.get(par_name).push(props.sensor.values[i][par_name]);
+      if (props.sensor.values[i].hasOwnProperty(par_name))
+        vals_ys.get(par_name).push(props.sensor.values[i][par_name]);
+      else if (vals_ys.get(par_name).length > 0)
+        vals_ys.get(par_name).push(vals_ys.get(par_name)[vals_ys.get(par_name).length - 1]);
+      else
+        vals_ys.get(par_name).push(par.default_value);
   }
 
   const traces = new Map();
@@ -92,15 +97,22 @@ onMounted(() => {
   props.sensor.addValueListener((value, timestamp) => {
     vals_xs.push(timestamp);
     for (const [par_name, par] of props.sensor.type.parameters) {
+      let c_value;
+      if (value.hasOwnProperty(par_name))
+        c_value = value[par_name];
+      else if (vals_ys.get(par_name).length > 0)
+        c_value = vals_ys.get(par_name)[vals_ys.get(par_name).length - 1];
+      else
+        c_value = par.default_value;
       if (par instanceof FloatParameter || par instanceof IntegerParameter)
-        traces.get(par_name)[0].y.push(value[par_name]);
+        traces.get(par_name)[0].y.push(c_value);
       else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
         if (traces.get(par_name).length > 0)
           traces.get(par_name)[traces.get(par_name).length - 1].x[1] = timestamp;
-        if (String(value[par_name]) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
-          let trace = { x: [timestamp, timestamp], y: [1, 1], name: String(value[par_name]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
+        if (String(c_value) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
+          let trace = { x: [timestamp, timestamp], y: [1, 1], name: String(c_value), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
           if (par instanceof BooleanParameter || par instanceof SymbolParameter)
-            trace.line.color = colors.get(par_name).get(String(value[par_name]));
+            trace.line.color = colors.get(par_name).get(String(c_value));
           traces.get(par_name).push(trace);
         }
       }
