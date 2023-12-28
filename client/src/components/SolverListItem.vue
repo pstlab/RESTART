@@ -3,6 +3,7 @@
 </template>
   
 <script setup>
+import { computed } from 'vue';
 import { Solver } from '@/solver';
 
 const props = defineProps({
