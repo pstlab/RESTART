@@ -48,7 +48,7 @@ const time_listener = (timestamp) => {
   layout.shapes[0].x0 = timestamp;
   layout.shapes[0].x1 = timestamp;
   layout.datarevision = timestamp;
-  Plotly.react(get_timelines_id(props.solver), Array.from(traces.values()).flat(), layout);
+  Plotly.relayout(get_timelines_id(props.solver), layout);
 };
 
 onMounted(() => {
