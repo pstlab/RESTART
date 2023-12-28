@@ -21,6 +21,7 @@ export class Solver {
         this.executing_tasks = new Set();
 
         this.state_listeners = new Set();
+        this.timelines_listeners = new Set();
         this.time_listeners = new Set();
         this.task_start_listeners = new Set();
         this.task_end_listeners = new Set();
@@ -58,6 +59,7 @@ export class Solver {
         this.current_time = message.time.num / message.time.den;
 
         this.state_listeners.forEach(l => l(this));
+        this.timelines_listeners.forEach(l => l(this.timelines));
     }
 
     solution_found() {
@@ -510,6 +512,18 @@ export class Solver {
                 return resolver.rho.replace('b', '\u03C1') + ', cost: ' + resolver.cost;
         }
     }
+
+    add_state_listener(listener) { this.state_listeners.add(listener); }
+    add_timelines_listener(listener) { this.timelines_listeners.add(listener); }
+    add_time_listener(listener) { this.time_listeners.add(listener); }
+    add_task_start_listener(listener) { this.task_start_listeners.add(listener); }
+    add_task_end_listener(listener) { this.task_end_listeners.add(listener); }
+
+    remove_state_listener(listener) { this.state_listeners.delete(listener); }
+    remove_timelines_listener(listener) { this.timelines_listeners.delete(listener); }
+    remove_time_listener(listener) { this.time_listeners.delete(listener); }
+    remove_task_start_listener(listener) { this.task_start_listeners.delete(listener); }
+    remove_task_end_listener(listener) { this.task_end_listeners.delete(listener); }
 
     add_new_node_listener(listener) { this.new_node_listeners.add(listener); }
     add_node_listener(node, listener) { this.node_listeners.get(node.id).add(listener); }

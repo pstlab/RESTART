@@ -75,12 +75,12 @@ onMounted(() => {
     if (par instanceof FloatParameter || par instanceof IntegerParameter) {
       if (i == 1) {
         y_axes.set(par_name, 'y');
-        traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter' }]);
+        traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter', yaxis: y_axes.get(par_name) }]);
         layout['yaxis'] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [par.min, par.max] };
       }
       else {
         y_axes.set(par_name, 'y' + i);
-        traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter', yaxis: 'y' + i }]);
+        traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter', yaxis: y_axes.get(par_name) }]);
         layout['yaxis' + i] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [par.min, par.max] };
       }
     }
@@ -111,13 +111,14 @@ onMounted(() => {
         if (j > 0)
           traces.get(par_name)[traces.get(par_name).length - 1].x[1] = vals_xs[j];
         if (j == 0 || String(vals_ys.get(par_name)[j]) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
-          let trace = { x: [vals_xs[j], vals_xs[j]], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: 'y' + i };
+          let trace = { x: [vals_xs[j], vals_xs[j]], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
           if (par instanceof BooleanParameter || par instanceof SymbolParameter)
             trace.line.color = c_colors.get(String(vals_ys.get(par_name)[j]));
           traces.get(par_name).push(trace);
         }
       }
     }
+
     start_domain += domain_size;
     i++;
   }
