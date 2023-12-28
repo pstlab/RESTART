@@ -12,6 +12,11 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+set(DASHBOARD_HOST "0.0.0.0" CACHE STRING "The RESTART Dashboard Host")
+set(DASHBOARD_PORT "8080" CACHE STRING "The RESTART Dashboard Port")
+message(STATUS "Dashboard host:         ${DASHBOARD_HOST}")
+message(STATUS "Dashboard port:         ${DASHBOARD_PORT}")
+
 add_subdirectory(extern/coco)
 add_subdirectory(extern/rationet)
 
@@ -21,6 +26,7 @@ file(GLOB RESTART_HEADERS include/*.h)
 add_executable(${PROJECT_NAME} ${RESTART_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 target_link_libraries(${PROJECT_NAME} PRIVATE COCO ratioNet)
+target_compile_definitions(${PROJECT_NAME} PRIVATE DASHBOARD_HOST="${DASHBOARD_HOST}" DASHBOARD_PORT=${DASHBOARD_PORT})
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)

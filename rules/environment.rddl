@@ -1,0 +1,10 @@
+class Thermostat : StateVariable {
+    predicate Temperature(string location, real temp) { false; }
+    predicate Heating(string location) { duration >= 10.0; goal temp = new Temperature(location: location, end: start); temp.temp <= 18.0; fact consumption = new watt.Use(start: start, end: end, amount: 1500.0); }
+    predicate Cooling(string location) { duration >= 10.0; goal temp = new Temperature(location: location, end: start); temp.temp >= 33.0; fact consumption = new watt.Use(start: start, end: end, amount: 2000.0); }
+    predicate Comfort(string location) { duration >= 10.0; { goal heat = new Heating(location: location, end: start); } or { goal cool = new Cooling(location: location, end: start); } }
+}
+
+ReusableResource watt = new ReusableResource(3000.0);
+
+Thermostat thermostat = new Thermostat();
