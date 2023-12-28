@@ -51,3 +51,24 @@ setInterval(() => {
 }, 1000);
 
 store.solvers.set("3", new Solver("3", "Solver", "idle"));
+
+let i = 0;
+setInterval(() => {
+    store.solvers.get("3").flaw_created({
+        id: i++,
+        phi: "phi",
+        causes: [],
+        state: "active",
+        cost: { num: 1, den: 2 },
+        data: "data"
+    });
+    store.solvers.get("3").resolver_created({
+        id: i++,
+        rho: "rho",
+        preconditions: [],
+        effect: i - 2,
+        state: "active",
+        intrinsic_cost: { num: 1, den: 2 },
+        data: "data"
+    });
+}, 1000);

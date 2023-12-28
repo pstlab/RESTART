@@ -19,6 +19,16 @@ export class Solver {
 
         this.current_time = 0;
         this.executing_tasks = new Set();
+
+        this.state_listeners = new Set();
+        this.time_listeners = new Set();
+        this.task_start_listeners = new Set();
+        this.task_end_listeners = new Set();
+
+        this.new_node_listeners = new Set();
+        this.node_listeners = new Map();
+        this.new_edge_listeners = new Set();
+        this.edge_listeners = new Map();
     }
 
     state_changed(message) {
@@ -46,25 +56,43 @@ export class Solver {
         for (const atm of message.executing)
             this.executing_tasks.add(this.atoms.get(atm));
         this.current_time = message.time.num / message.time.den;
+
+        this.state_listeners.forEach(l => l(this));
     }
 
     solution_found() {
+        if (this.current_flaw) {
+            this.current_flaw.current = false;
+            this.node_listeners.get(this.current_flaw.id).forEach(l => l(this.current_flaw));
+        }
         this.current_flaw = undefined;
+        if (this.current_resolver) {
+            this.current_resolver.current = false;
+            this.node_listeners.get(this.current_resolver.id).forEach(l => l(this.current_resolver));
+        }
         this.current_resolver = undefined;
     }
 
     inconsistent_problem() {
+        if (this.current_flaw) {
+            this.current_flaw.current = false;
+            this.node_listeners.get(this.current_flaw.id).forEach(l => l(this.current_flaw));
+        }
         this.current_flaw = undefined;
+        if (this.current_resolver) {
+            this.current_resolver.current = false;
+            this.node_listeners.get(this.current_resolver.id).forEach(l => l(this.current_resolver));
+        }
         this.current_resolver = undefined;
     }
 
     executor_state_changed(message) {
         this.state = message.state;
-        this.execution_state_listeners.forEach(l => l(this.state));
     }
 
     tick(message) {
         this.current_time = message.time.num / message.time.den;
+        this.time_listeners.forEach(l => l(this.current_time));
     }
 
     graph(message) {
@@ -87,6 +115,8 @@ export class Solver {
             flaw.label = this.flaw_label(flaw);
             flaw.title = this.flaw_tooltip(flaw);
             this.nodes.set(flaw.id, flaw);
+            this.node_listeners.set(flaw.id, new Set());
+            this.new_node_listeners.forEach(l => l(flaw));
         }
 
         for (const r of message.resolvers) {
@@ -105,21 +135,30 @@ export class Solver {
             resolver.label = this.resolver_label(resolver);
             resolver.title = this.resolver_tooltip(resolver);
             this.nodes.set(resolver.id, resolver);
+            this.node_listeners.set(resolver.id, new Set());
+            this.new_node_listeners.forEach(l => l(resolver));
 
             const eff_edge = { from: r.id, to: r.effect, state: resolver.state };
             this.edges.add(eff_edge);
+            this.edge_listeners.set(eff_edge, new Set());
+            this.new_edge_listeners.forEach(l => l(eff_edge));
             resolver.edges.push(eff_edge);
             for (const f of resolver.preconditions) {
                 const prec_edge = { from: f, to: resolver.id, state: resolver.state };
                 this.edges.add(prec_edge);
                 resolver.edges.push(prec_edge);
+                this.edge_listeners.set(prec_edge, new Set());
+                this.new_edge_listeners.forEach(l => l(prec_edge));
             }
         }
 
         if (message.current_flaw) {
             this.current_flaw = this.nodes.get(message.current_flaw);
-            if (message.current_resolver)
+            this.current_flaw.current = true;
+            if (message.current_resolver) {
                 this.current_resolver = this.nodes.get(message.current_resolver);
+                this.current_resolver.current = true;
+            }
         }
     }
 
@@ -137,6 +176,8 @@ export class Solver {
         flaw.label = this.flaw_label(flaw);
         flaw.title = this.flaw_tooltip(flaw);
         this.nodes.set(flaw.id, flaw);
+        this.node_listeners.set(flaw.id, new Set());
+        this.new_node_listeners.forEach(l => l(flaw));
         for (const c_id of flaw.causes) {
             const cause = this.nodes.get(c_id);
             cause.preconditions.push(flaw.id);
@@ -146,20 +187,24 @@ export class Solver {
                 cause.title = this.resolver_tooltip(cause);
             }
             const cause_edge = { from: flaw.id, to: cause.id, state: cause.state };
-            this.edges.add(cause_edge);
             cause.edges.push(cause_edge);
+            this.edges.add(cause_edge);
+            this.edge_listeners.set(cause_edge, new Set());
+            this.new_edge_listeners.forEach(l => l(cause_edge));
         }
     }
 
     flaw_state_changed(message) {
         const flaw = this.nodes.get(message.id);
         flaw.state = message.state;
+        this.node_listeners.get(flaw.id).forEach(l => l(flaw));
     }
 
     flaw_cost_changed(message) {
         const flaw = this.nodes.get(message.id);
         flaw.cost = message.cost.num / message.cost.den;
         flaw.title = this.flaw_tooltip(flaw);
+        this.node_listeners.get(flaw.id).forEach(l => l(flaw));
 
         for (const c_id of flaw.causes) {
             const cause = this.nodes.get(c_id);
@@ -167,6 +212,7 @@ export class Solver {
             if (cause.cost != c_res_cost) {
                 cause.cost = c_res_cost;
                 cause.title = this.resolver_tooltip(cause);
+                this.node_listeners.get(cause.id).forEach(l => l(cause));
             }
         }
     }
@@ -175,10 +221,21 @@ export class Solver {
         const flaw = this.nodes.get(message.id);
         flaw.pos = message.pos;
         flaw.title = this.flaw_tooltip(flaw);
+        this.node_listeners.get(flaw.id).forEach(l => l(flaw));
     }
 
     current_flaw_changed(message) {
+        if (this.current_flaw) {
+            this.current_flaw.current = false;
+            this.node_listeners.get(this.current_flaw.id).forEach(l => l(this.current_flaw));
+        }
         this.current_flaw = this.nodes.get(message.id);
+        this.current_flaw.current = true;
+        this.node_listeners.get(this.current_flaw.id).forEach(l => l(this.current_flaw));
+        if (this.current_resolver) {
+            this.current_resolver.current = false;
+            this.node_listeners.get(this.current_resolver.id).forEach(l => l(this.current_resolver));
+        }
         this.current_resolver = undefined;
     }
 
@@ -198,9 +255,13 @@ export class Solver {
         resolver.label = this.resolver_label(resolver);
         resolver.title = this.resolver_tooltip(resolver);
         this.nodes.set(resolver.id, resolver);
+        this.node_listeners.set(resolver.id, new Set());
+        this.new_node_listeners.forEach(l => l(resolver));
         const eff_edge = { from: message.id, to: message.effect, state: resolver.state };
-        this.edges.add(eff_edge);
         resolver.edges.push(eff_edge);
+        this.edges.add(eff_edge);
+        this.edge_listeners.set(eff_edge, new Set());
+        this.new_edge_listeners.forEach(l => l(eff_edge));
     }
 
     resolver_state_changed(message) {
@@ -208,13 +269,21 @@ export class Solver {
         resolver.state = message.state;
         resolver.cost = this.estimate_cost(resolver);
         resolver.title = this.resolver_tooltip(resolver);
+        this.node_listeners.get(resolver.id).forEach(l => l(resolver));
         for (const edge of resolver.edges) {
             edge.state = resolver.state;
+            this.edge_listeners.get(edge).forEach(l => l(edge));
         }
     }
 
     current_resolver_changed(message) {
+        if (this.current_resolver) {
+            this.current_resolver.current = false;
+            this.node_listeners.get(this.current_resolver.id).forEach(l => l(this.current_resolver));
+        }
         this.current_resolver = this.nodes.get(message.id);
+        this.current_resolver.current = true;
+        this.node_listeners.get(this.current_resolver.id).forEach(l => l(this.current_resolver));
     }
 
     causal_link_added(message) {
@@ -222,9 +291,14 @@ export class Solver {
         const resolver = this.nodes.get(message.resolver_id);
         resolver.preconditions.push(flaw.id);
         flaw.causes.push(resolver.id);
-        this.edges.add({ from: message.flaw_id, to: message.resolver_id, resolver: resolver });
+        const cause_edge = { from: flaw.id, to: resolver.id, state: resolver.state };
+        this.edges.add(cause_edge);
+        resolver.edges.push(cause_edge);
+        this.edge_listeners.set(cause_edge, new Set());
+        this.new_edge_listeners.forEach(l => l(cause_edge));
         resolver.cost = this.estimate_cost(resolver);
         resolver.title = this.resolver_tooltip(resolver);
+        this.node_listeners.get(resolver.id).forEach(l => l(resolver));
     }
 
     estimate_cost(res) {
@@ -241,6 +315,7 @@ export class Solver {
     start(message) {
         for (const atm of message.start)
             this.executing_tasks.add(this.atoms.get(atm));
+        this.task_start_listeners.forEach(l => l(message.start.map(atm => this.atoms.get(atm))));
     }
 
     ending(message) {
@@ -252,6 +327,7 @@ export class Solver {
     end(message) {
         for (const atm of message.end)
             this.executing_tasks.delete(this.atoms.get(atm));
+        this.task_end_listeners.forEach(l => l(message.end.map(atm => this.atoms.get(atm))));
     }
 
     timeline_name(tl) { return tl.name; }
@@ -434,4 +510,14 @@ export class Solver {
                 return resolver.rho.replace('b', '\u03C1') + ', cost: ' + resolver.cost;
         }
     }
+
+    add_new_node_listener(listener) { this.new_node_listeners.add(listener); }
+    add_node_listener(node, listener) { this.node_listeners.get(node.id).add(listener); }
+    add_new_edge_listener(listener) { this.new_edge_listeners.add(listener); }
+    add_edge_listener(edge, listener) { this.edge_listeners.get(edge).add(listener); }
+
+    remove_new_node_listener(listener) { this.new_node_listeners.delete(listener); }
+    remove_node_listener(node, listener) { this.node_listeners.get(node.id).delete(listener); }
+    remove_new_edge_listener(listener) { this.new_edge_listeners.delete(listener); }
+    remove_edge_listener(edge, listener) { this.edge_listeners.get(edge).delete(listener); }
 }

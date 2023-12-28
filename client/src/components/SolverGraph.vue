@@ -18,9 +18,29 @@ const props = defineProps({
 const get_graph_id = (solver) => 'slv-' + solver.id + '-graph';
 
 cytoscape.use(klay);
+let cy;
+let layout;
+
+const node_listeners = new Map();
+const new_node_listener = (node) => {
+  cy.add({ group: 'nodes', data: { id: node.id, type: 'phi' in node ? 'flaw' : 'resolver', label: node.label, state: node.state, cost: node.cost } });
+  layout.run();
+  const node_listener = (node) => { cy.$id(node.id).data({ label: node.label, state: node.state, cost: node.cost }); };
+  props.solver.add_node_listener(node, node_listener);
+  node_listeners.set(node, node_listener);
+};
+
+const edge_listeners = new Map();
+const new_edge_listener = (edge) => {
+  cy.add({ group: 'edges', data: { id: edge.from + '-' + edge.to, source: edge.from, target: edge.to, state: edge.state } });
+  layout.run();
+  const edge_listener = (edge) => { cy.$id(edge.from + '-' + edge.to).data({ state: edge.state }); };
+  props.solver.add_edge_listener(edge, edge_listener);
+  edge_listeners.set(edge, edge_listener);
+};
 
 onMounted(() => {
-  const cy = cytoscape({
+  cy = cytoscape({
     container: document.getElementById(get_graph_id(props.solver)),
     style: [
       {
@@ -51,23 +71,24 @@ onMounted(() => {
     ]
   });
 
-  cy.add({
-    group: 'nodes',
-    data: { id: 'n0', type: 'flaw' }
-  });
-  cy.add({
-    group: 'nodes',
-    data: { id: 'n1', type: 'resolver' }
-  });
-  cy.add({
-    group: 'edges',
-    data: { id: 'e0', source: 'n1', target: 'n0' }
-  });
+  props.solver.add_new_node_listener(new_node_listener);
+  props.solver.add_new_edge_listener(new_edge_listener);
 
-  const layout = cy.layout({
+  layout = cy.layout({
     name: 'klay',
-    animate: true
+    animate: true,
+    klay: {
+      direction: 'RIGHT',
+    },
   });
-  layout.run();
+});
+
+onUnmounted(() => {
+  props.solver.remove_new_node_listener(new_node_listener);
+  props.solver.remove_new_edge_listener(new_edge_listener);
+  for (const [node, node_listener] of node_listeners)
+    props.solver.remove_node_listener(node, node_listener);
+  for (const [edge, edge_listener] of edge_listeners)
+    props.solver.remove_edge_listener(edge, edge_listener);
 });
 </script>
