@@ -1,5 +1,6 @@
 <template>
-  <v-list-item :value="sensor.id" :title="sensor.name" :subtitle="sensor.description" three-line />
+  <v-list-item :value="sensor.id" :title="sensor.name" :subtitle="sensor.description" prepend-icon="mdi-thermometer"
+    three-line />
 </template>
 
 <script setup>

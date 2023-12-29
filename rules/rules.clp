@@ -1,11 +1,23 @@
 (deftemplate temperature (slot temp (type NUMBER)))
 
+(defrule start_solver_when_idle
+    (solver (solver_ptr ?sp) (state idle))
+    =>
+    (start_execution ?sp)
+)
+
+(defrule delete_solver_when_finished
+    (solver (solver_ptr ?sp) (state finished))
+    =>
+    (delete_solver ?sp)
+)
+
 (deffunction get_environment_solver ()
     (if (any-factp ((?slv solver)) (eq ?slv:solver_type environment))
         then
         (do-for-fact ((?slv solver)) (eq ?slv:solver_type environment) (return ?slv:solver_ptr))
         else
-        (println "Creating new environment solver")
+        (println "Creating new `environment` solver")
         (return (new_solver_files environment (create$ "rules/environment.rddl")))
     )
 )
@@ -24,7 +36,7 @@
         )
         (if (and (not (any-factp ((?slv solver)) (eq ?slv:solver_type environment))) (or (<= ?temp 18) (>= ?temp 33)))
             then
-            (adapt_script (get_environment_solver) (str-cat "fact temp = new thermostat.Temperature(location: \"multisensory_room\"start: 0.0, end: 10.0, temp: " (float ?temp) "); goal comf = new thermostat.Comfort();"))
+            (adapt_script (get_environment_solver) (str-cat "fact temp = new thermostat.Temperature(start: 0.0, end: 10.0, temp: " (float ?temp) "); goal comf = new thermostat.Comfort();"))
         )
     )
 )

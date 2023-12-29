@@ -23,6 +23,9 @@ namespace restart
     void on_ws_close(network::websocket_session &ws);
     void on_ws_error(network::websocket_session &ws, const boost::system::error_code &ec);
 
+    void get_sensor_data(const string_req &req, string_res &res);
+    void add_sensor_data(const string_req &req, string_res &res);
+
     void new_sensor_type(const coco::sensor_type &s) override;
     void updated_sensor_type(const coco::sensor_type &s) override;
     void deleted_sensor_type(const std::string &id) override;
@@ -31,8 +34,8 @@ namespace restart
     void updated_sensor(const coco::sensor &s) override;
     void deleted_sensor(const std::string &id) override;
 
-    void new_sensor_data(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &value) override;
-    void new_sensor_state(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &state) override;
+    void new_sensor_value(const coco::sensor &s, const std::chrono::system_clock::time_point &timestamp, const json::json &value) override;
+    void new_sensor_state(const coco::sensor &s, const std::chrono::system_clock::time_point &timestamp, const json::json &state) override;
 
     void new_solver(const coco::coco_executor &exec) override;
     void deleted_solver(const uintptr_t id) override;

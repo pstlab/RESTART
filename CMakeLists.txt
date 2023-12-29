@@ -12,6 +12,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+set(COCO_NAME "RESTART" CACHE STRING "The CoCo Application Name" FORCE)
+
 set(DASHBOARD_HOST "0.0.0.0" CACHE STRING "The RESTART Dashboard Host")
 set(DASHBOARD_PORT "8080" CACHE STRING "The RESTART Dashboard Port")
 message(STATUS "Dashboard host:         ${DASHBOARD_HOST}")

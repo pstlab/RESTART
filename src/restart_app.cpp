@@ -1,6 +1,7 @@
 #include "restart_app.h"
 #include "restart_db.h"
 #include "coco_executor.h"
+#include <iomanip>
 
 namespace restart
 {
@@ -34,6 +35,64 @@ namespace restart
             .on_message(std::bind(&restart_app::on_ws_message, this, std::placeholders::_1, std::placeholders::_2))
             .on_close(std::bind(&restart_app::on_ws_close, this, std::placeholders::_1))
             .on_error(std::bind(&restart_app::on_ws_error, this, std::placeholders::_1, std::placeholders::_2));
+
+        add_route<boost::beast::http::string_body, boost::beast::http::string_body>(boost::beast::http::verb::get, "^/sensor/.+$", std::bind(&restart_app::get_sensor_data, this, std::placeholders::_1, std::placeholders::_2));
+        add_route<boost::beast::http::string_body, boost::beast::http::string_body>(boost::beast::http::verb::post, "^/sensor/.+$", std::bind(&restart_app::add_sensor_data, this, std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void restart_app::get_sensor_data(const string_req &req, string_res &res)
+    {
+        const std::lock_guard<std::recursive_mutex> lock(cc.get_mutex());
+
+        std::size_t query_start = req.target().find('?', 8);
+        std::string sensor_id = query_start == std::string::npos ? req.target().substr(8).to_string() : req.target().substr(8, query_start - 8).to_string();
+        if (!cc.get_database().has_sensor(sensor_id))
+        {
+            res.result(boost::beast::http::status::not_found);
+            res.set(boost::beast::http::field::content_type, "application/json");
+            res.body() = json::json{{"success", false}, {"message", "Sensor not found"}}.to_string();
+            return;
+        }
+        std::map<std::string, std::string> fields = query_start != std::string::npos ? network::parse_query(req.target().substr(query_start + 1).to_string()) : std::map<std::string, std::string>{};
+
+        std::chrono::system_clock::time_point to;
+        if (fields.count("to"))
+            to = std::chrono::system_clock::time_point{std::chrono::milliseconds{std::stoll(fields["to"])}};
+        else
+            to = std::chrono::system_clock::now();
+
+        std::chrono::system_clock::time_point from;
+        if (fields.count("from"))
+            from = std::chrono::system_clock::time_point{std::chrono::milliseconds{std::stoll(fields["from"])}};
+        else
+            from = to - std::chrono::hours{24 * 30};
+
+#ifdef VERBOSE_LOG
+        auto from_t = std::chrono::system_clock::to_time_t(from);
+        auto to_t = std::chrono::system_clock::to_time_t(to);
+
+        LOG_DEBUG("From: " << std::put_time(std::localtime(&from_t), "%c %Z"));
+        LOG_DEBUG("To: " << std::put_time(std::localtime(&to_t), "%c %Z"));
+#endif
+
+        res.set(boost::beast::http::field::content_type, "application/json");
+        res.body() = cc.get_database().get_sensor_data(cc.get_database().get_sensor(sensor_id), from, to).to_string();
+    }
+
+    void restart_app::add_sensor_data(const string_req &req, string_res &res)
+    {
+        const std::lock_guard<std::recursive_mutex> lock(cc.get_mutex());
+
+        std::string sensor_id = req.target().to_string().substr(8);
+        if (!cc.get_database().has_sensor(sensor_id))
+        {
+            res.result(boost::beast::http::status::not_found);
+            res.set(boost::beast::http::field::content_type, "application/json");
+            res.body() = json::json{{"success", false}, {"message", "Sensor not found"}}.to_string();
+            return;
+        }
+
+        cc.add_sensor_data(cc.get_database().get_sensor(sensor_id), json::load(req.body().data()));
     }
 
     void restart_app::on_ws_open(network::websocket_session &ws)
@@ -126,15 +185,15 @@ namespace restart
         broadcast(coco::deleted_sensor_message(id));
     }
 
-    void restart_app::new_sensor_data(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &value)
+    void restart_app::new_sensor_value(const coco::sensor &s, const std::chrono::system_clock::time_point &timestamp, const json::json &value)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(sensor_data_message(s, time, value));
+        broadcast(sensor_value_message(s, timestamp, value));
     }
-    void restart_app::new_sensor_state(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &state)
+    void restart_app::new_sensor_state(const coco::sensor &s, const std::chrono::system_clock::time_point &timestamp, const json::json &state)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(sensor_state_message(s, time, state));
+        broadcast(sensor_state_message(s, timestamp, state));
     }
 
     void restart_app::new_solver(const coco::coco_executor &exec)

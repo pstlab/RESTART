@@ -56,7 +56,8 @@ export class Sensor {
         this.valueTimestamps = [];
         this.states = [];
         this.stateTimestamps = [];
-        this.value_listeners = [];
+        this.values_listeners = new Set();
+        this.value_listeners = new Set();
     }
 
     set_values(values, timestamps) {
@@ -64,6 +65,7 @@ export class Sensor {
         this.valueTimestamps = timestamps;
         this.lastValue = values[values.length - 1];
         this.lastUpdate = timestamps[timestamps.length - 1];
+        this.values_listeners.forEach(l => l(values, timestamps));
     }
 
     add_value(value, timestamp = new Date().getTime()) {
@@ -81,18 +83,16 @@ export class Sensor {
         this.lastUpdate = timestamps[timestamps.length - 1];
     }
 
-    addState(state, timestamp) {
+    add_state(state, timestamp) {
         this.lastState = state;
         this.lastUpdate = timestamp;
         this.states.push(state);
         this.stateTimestamps.push(timestamp);
     }
 
-    addValueListener(callback) {
-        this.value_listeners.push(callback);
-    }
+    add_values_listener(callback) { this.values_listeners.add(callback); callback(this.values, this.valueTimestamps); }
+    add_value_listener(callback) { this.value_listeners.add(callback); }
 
-    removeValueListener(callback) {
-        this.value_listeners = this.value_listeners.filter(l => l !== callback);
-    }
+    remove_values_listener(callback) { this.values_listeners.delete(callback); }
+    remove_value_listener(callback) { this.value_listeners.delete(callback); }
 }

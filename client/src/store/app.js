@@ -81,10 +81,10 @@ export const useAppStore = defineStore('app', {
             this.sensors.delete(data.sensor);
             break;
           case 'sensor_value':
-            this.sensors.get(data.sensor).add_value(data.value, data.timestamp * 1000);
+            this.sensors.get(data.sensor).add_value(data.value, new Date(data.timestamp * 1000));
             break;
           case 'sensor_state':
-            this.sensors.get(data.sensor).addState(data.state, data.timestamp * 1000);
+            this.sensors.get(data.sensor).add_state(data.state, new Date(data.timestamp * 1000));
             break;
           case 'solvers':
             this.solvers.clear();
@@ -92,10 +92,62 @@ export const useAppStore = defineStore('app', {
               this.solvers.set(solver.id, new Solver(solver.id, solver.name, solver.state));
             break;
           case 'new_solver':
-            this.solvers.set(data.solver.id, new Solver(data.solver.id, data.solver.name, data.solver.state));
+            this.solvers.set(data.id, new Solver(data.id, data.name, data.state));
             break;
           case 'deleted_solver':
             this.solvers.delete(data.solver);
+            break;
+          case 'state_changed':
+            this.solvers.get(data.solver_id).state_changed(data);
+            break;
+          case 'graph':
+            this.solvers.get(data.solver_id).graph(data);
+            break;
+          case 'flaw_created':
+            this.solvers.get(data.solver_id).flaw_created(data);
+            break;
+          case 'flaw_state_changed':
+            this.solvers.get(data.solver_id).flaw_state_changed(data);
+            break;
+          case 'flaw_cost_changed':
+            this.solvers.get(data.solver_id).flaw_cost_changed(data);
+            break;
+          case 'flaw_position_changed':
+            this.solvers.get(data.solver_id).flaw_position_changed(data);
+            break;
+          case 'current_flaw':
+            this.solvers.get(data.solver_id).current_flaw_changed(data);
+            break;
+          case 'resolver_created':
+            this.solvers.get(data.solver_id).resolver_created(data);
+            break;
+          case 'resolver_state_changed':
+            this.solvers.get(data.solver_id).resolver_state_changed(data);
+            break;
+          case 'current_resolver':
+            this.solvers.get(data.solver_id).current_resolver_changed(data);
+            break;
+          case 'causal_link_added':
+            this.solvers.get(data.solver_id).causal_link_added(data);
+            break;
+          case 'executor_state_changed':
+            if (this.solvers.has(data.solver_id))
+              this.solvers.get(data.solver_id).state = data.state;
+            break;
+          case 'tick':
+            this.solvers.get(data.solver_id).tick(data);
+            break;
+          case 'starting':
+            this.solvers.get(data.solver_id).starting(data);
+            break;
+          case 'ending':
+            this.solvers.get(data.solver_id).ending(data);
+            break;
+          case 'start':
+            this.solvers.get(data.solver_id).start(data);
+            break;
+          case 'end':
+            this.solvers.get(data.solver_id).end(data);
             break;
         }
       };

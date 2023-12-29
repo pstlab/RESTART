@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 
     app.load_rules(rules);
 
+    app.coco_core::start();
     app.server::start();
 
     return 0;
