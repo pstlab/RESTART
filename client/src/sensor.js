@@ -59,14 +59,14 @@ export class Sensor {
         this.value_listeners = [];
     }
 
-    setValues(values, timestamps) {
+    set_values(values, timestamps) {
         this.values = values;
         this.valueTimestamps = timestamps;
         this.lastValue = values[values.length - 1];
         this.lastUpdate = timestamps[timestamps.length - 1];
     }
 
-    addValue(value, timestamp = new Date().getTime()) {
+    add_value(value, timestamp = new Date().getTime()) {
         this.lastValue = value;
         this.lastUpdate = timestamp;
         this.values.push(value);
@@ -74,7 +74,7 @@ export class Sensor {
         this.value_listeners.forEach(l => l(value, timestamp));
     }
 
-    setStates(states, timestamps) {
+    set_states(states, timestamps) {
         this.states = states;
         this.stateTimestamps = timestamps;
         this.lastState = states[states.length - 1];

@@ -29,7 +29,7 @@ namespace restart
                                                                                                              LOG_ERR("Failed to open " << target << ": " << ec.message());
                                                                                                      }});
 
-        add_ws_route("/use")
+        add_ws_route("/restart")
             .on_open(std::bind(&restart_app::on_ws_open, this, std::placeholders::_1))
             .on_message(std::bind(&restart_app::on_ws_message, this, std::placeholders::_1, std::placeholders::_2))
             .on_close(std::bind(&restart_app::on_ws_close, this, std::placeholders::_1))
@@ -97,138 +97,132 @@ namespace restart
     void restart_app::new_sensor_type(const coco::sensor_type &st)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "new_sensor_type"}, {"sensor_type", to_json(st)}}.to_string());
+        broadcast(new_sensor_type_message(st));
     }
-    void restart_app::updated_sensor_type(const coco::sensor_type &s)
+    void restart_app::updated_sensor_type(const coco::sensor_type &st)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "updated_sensor_type"}, {"sensor_type", to_json(s)}}.to_string());
+        broadcast(updated_sensor_type_message(st));
     }
-    void restart_app::removed_sensor_type(const std::string &id)
+    void restart_app::deleted_sensor_type(const std::string &id)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "removed_sensor_type"}, {"sensor_type", id}}.to_string());
+        broadcast(coco::deleted_sensor_type_message(id));
     }
 
     void restart_app::new_sensor(const coco::sensor &s)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "new_sensor"}, {"sensor", to_json(s)}}.to_string());
+        broadcast(new_sensor_message(s));
     }
     void restart_app::updated_sensor(const coco::sensor &s)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "updated_sensor"}, {"sensor", to_json(s)}}.to_string());
+        broadcast(updated_sensor_message(s));
     }
-    void restart_app::removed_sensor(const std::string &id)
+    void restart_app::deleted_sensor(const std::string &id)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "removed_sensor"}, {"sensor", id}}.to_string());
+        broadcast(coco::deleted_sensor_message(id));
     }
 
     void restart_app::new_sensor_data(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &value)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "new_sensor_value"}, {"sensor", s.get_id()}, {"timestamp", std::chrono::system_clock::to_time_t(time)}, {"value", value}}.to_string());
+        broadcast(sensor_data_message(s, time, value));
     }
     void restart_app::new_sensor_state(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &state)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(json::json{{"type", "new_sensor_state"}, {"sensor", s.get_id()}, {"timestamp", std::chrono::system_clock::to_time_t(time)}, {"state", state}}.to_string());
+        broadcast(sensor_state_message(s, time, state));
     }
 
     void restart_app::new_solver(const coco::coco_executor &exec)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(ratio::executor::solver_created_message(exec.get_executor()).to_string());
+        broadcast(ratio::executor::new_solver_message(exec.get_executor()));
     }
-    void restart_app::removed_solver(const uintptr_t id)
+    void restart_app::deleted_solver(const uintptr_t id)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(ratio::executor::solver_destroyed_message(id).to_string());
+        broadcast(ratio::executor::deleted_solver_message(id));
     }
 
     void restart_app::state_changed(const coco::coco_executor &exec)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        json::json j_sc = solver_state_changed_message(exec.get_executor().get_solver());
-        j_sc["time"] = ratio::to_json(exec.get_executor().get_current_time());
-        json::json j_executing(json::json_type::array);
-        for (const auto &atm : exec.get_executor().get_executing())
-            j_executing.push_back(get_id(*atm));
-        j_sc["executing"] = std::move(j_executing);
-        broadcast(j_sc.to_string());
+        broadcast(executor_state_changed_message(exec.get_executor()));
     }
 
     void restart_app::flaw_created(const coco::coco_executor &, const ratio::flaw &f)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(flaw_created_message(f).to_string());
+        broadcast(flaw_created_message(f));
     }
     void restart_app::flaw_state_changed(const coco::coco_executor &, const ratio::flaw &f)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(flaw_state_changed_message(f).to_string());
+        broadcast(flaw_state_changed_message(f));
     }
     void restart_app::flaw_cost_changed(const coco::coco_executor &, const ratio::flaw &f)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(flaw_cost_changed_message(f).to_string());
+        broadcast(flaw_cost_changed_message(f));
     }
     void restart_app::flaw_position_changed(const coco::coco_executor &, const ratio::flaw &f)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(flaw_position_changed_message(f).to_string());
+        broadcast(flaw_position_changed_message(f));
     }
     void restart_app::current_flaw(const coco::coco_executor &, const ratio::flaw &f)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(current_flaw_message(f).to_string());
+        broadcast(current_flaw_message(f));
     }
 
     void restart_app::resolver_created(const coco::coco_executor &, const ratio::resolver &r)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(resolver_created_message(r).to_string());
+        broadcast(resolver_created_message(r));
     }
     void restart_app::resolver_state_changed(const coco::coco_executor &, const ratio::resolver &r)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(resolver_state_changed_message(r).to_string());
+        broadcast(resolver_state_changed_message(r));
     }
     void restart_app::current_resolver(const coco::coco_executor &, const ratio::resolver &r)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(current_resolver_message(r).to_string());
+        broadcast(current_resolver_message(r));
     }
 
     void restart_app::causal_link_added(const coco::coco_executor &, const ratio::flaw &f, const ratio::resolver &r)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(causal_link_added_message(f, r).to_string());
+        broadcast(causal_link_added_message(f, r));
     }
 
     void restart_app::executor_state_changed(const coco::coco_executor &exec, ratio::executor::executor_state)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(executor_state_changed_message(exec.get_executor()).to_string());
+        broadcast(executor_state_changed_message(exec.get_executor()));
     }
 
     void restart_app::tick(const coco::coco_executor &exec, const utils::rational &time)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(tick_message(exec.get_executor(), time).to_string());
+        broadcast(tick_message(exec.get_executor(), time));
     }
 
     void restart_app::start(const coco::coco_executor &exec, const std::unordered_set<ratio::atom *> &atoms)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(start_message(exec.get_executor(), atoms).to_string());
+        broadcast(start_message(exec.get_executor(), atoms));
     }
     void restart_app::end(const coco::coco_executor &exec, const std::unordered_set<ratio::atom *> &atoms)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(end_message(exec.get_executor(), atoms).to_string());
+        broadcast(end_message(exec.get_executor(), atoms));
     }
 
     void restart_app::broadcast(const std::shared_ptr<const std::string> &msg)

@@ -25,17 +25,17 @@ namespace restart
 
     void new_sensor_type(const coco::sensor_type &s) override;
     void updated_sensor_type(const coco::sensor_type &s) override;
-    void removed_sensor_type(const std::string &id) override;
+    void deleted_sensor_type(const std::string &id) override;
 
     void new_sensor(const coco::sensor &s) override;
     void updated_sensor(const coco::sensor &s) override;
-    void removed_sensor(const std::string &id) override;
+    void deleted_sensor(const std::string &id) override;
 
     void new_sensor_data(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &value) override;
     void new_sensor_state(const coco::sensor &s, const std::chrono::system_clock::time_point &time, const json::json &state) override;
 
     void new_solver(const coco::coco_executor &exec) override;
-    void removed_solver(const uintptr_t id) override;
+    void deleted_solver(const uintptr_t id) override;
 
     void state_changed(const coco::coco_executor &exec) override;
 
@@ -61,6 +61,7 @@ namespace restart
   private:
     void broadcast(const std::shared_ptr<const std::string> &msg);
     void broadcast(const std::string &&msg) { broadcast(std::make_shared<std::string>(msg)); }
+    void broadcast(const json::json &msg) { broadcast(msg.to_string()); }
 
   private:
     std::unordered_set<network::websocket_session *> sessions;
