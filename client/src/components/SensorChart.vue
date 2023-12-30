@@ -40,17 +40,18 @@ const values_listener = (values, timestamps) => {
   let i = 1;
   let start_domain = 0;
   let domain_size = 1 / props.sensor.type.parameters.size;
+  const domain_separator = 0.05 * domain_size;
   for (const [par_name, par] of props.sensor.type.parameters) {
     if (par instanceof FloatParameter || par instanceof IntegerParameter) {
       if (i == 1) {
         y_axes.set(par_name, 'y');
         traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter', yaxis: y_axes.get(par_name) }]);
-        layout['yaxis'] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [par.min, par.max] };
+        layout['yaxis'] = { title: par_name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [par.min, par.max] };
       }
       else {
         y_axes.set(par_name, 'y' + i);
         traces.set(par_name, [{ x: vals_xs, y: vals_ys.get(par_name), name: par_name, type: 'scatter', yaxis: y_axes.get(par_name) }]);
-        layout['yaxis' + i] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [par.min, par.max] };
+        layout['yaxis' + i] = { title: par_name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [par.min, par.max] };
       }
     }
     else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
@@ -69,11 +70,11 @@ const values_listener = (values, timestamps) => {
 
       if (i == 1) {
         y_axes.set(par_name, 'y');
-        layout['yaxis'] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
+        layout['yaxis'] = { title: par_name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
       }
       else {
         y_axes.set(par_name, 'y' + i);
-        layout['yaxis' + i] = { title: par_name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
+        layout['yaxis' + i] = { title: par_name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
       }
 
       for (let j = 0; j < vals_ys.get(par_name).length; j++) {

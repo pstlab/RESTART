@@ -20,7 +20,7 @@ const get_timelines_id = (solver) => 'slv-' + solver.id + '-timelines';
 const y_axes = new Map();
 const traces = new Map();
 const layout = {
-  xaxis: { title: 'Time', type: 'date' },
+  xaxis: { title: 'Time' },
   showlegend: false,
   shapes: [
     {
@@ -55,6 +55,7 @@ onMounted(() => {
   props.solver.add_timelines_listener(timelines_listener);
   props.solver.add_time_listener(time_listener);
 
+  recompute_timelines();
   Plotly.newPlot(get_timelines_id(props.solver), Array.from(traces.values()).flat(), layout);
 });
 
@@ -69,6 +70,7 @@ function recompute_timelines() {
   y_axes.clear();
   traces.clear();
   let domain_size = 1 / props.solver.timelines.size;
+  const domain_separator = 0.05 * domain_size;
   for (const [id, tl] of props.solver.timelines) {
     if (i == 1)
       y_axes.set(id, 'y');
@@ -92,9 +94,9 @@ function recompute_timelines() {
           traces.get(id).push({ x: [val.from, val.to], y: [val.y, val.y], name: val.text, type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(id) });
         }
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         break;
       case 'StateVariable':
         for (const val of tl.values) {
@@ -105,14 +107,14 @@ function recompute_timelines() {
           traces.get(id).push({ x: [val.from, val.to], y: [i, i], name: val.text, type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(id) });
         }
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         break;
-      case 'ReusableResource':
+      case 'ReusableResource': {
         tl.capacity = tl.capacity.num / tl.capacity.den;
-        vals_xs = [props.solver.origin];
-        vals_ys = [0];
+        const vals_xs = [props.solver.origin];
+        const vals_ys = [0];
         for (const val of tl.values) {
           val.from = val.from.num / val.from.den;
           val.to = val.to.num / val.to.den;
@@ -125,18 +127,19 @@ function recompute_timelines() {
         }
         vals_xs.push(props.solver.horizon);
         vals_ys.push(0);
-        traces.get(id).push({ x: vals_xs, y: vals_ys, name: tl.name, type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(id) });
-        traces.get(id).push({ x: [props.solver.origin, props.solver.horizon], y: [tl.capacity, tl.capacity], name: 'Capacity', type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(id) });
+        traces.get(id).push({ x: vals_xs, y: vals_ys, name: tl.name, type: 'scatter', opacity: 0.7, mode: 'lines', fill: 'tozeroy', yaxis: y_axes.get(id) });
+        traces.get(id).push({ x: [props.solver.origin, props.solver.horizon], y: [tl.capacity, tl.capacity], name: 'Capacity', type: 'scatter', opacity: 0.7, mode: 'lines', yaxis: y_axes.get(id) });
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         break;
-      case 'ConsumableResource':
+      }
+      case 'ConsumableResource': {
         tl.initial_amount = tl.initial_amount.num / tl.initial_amount.den;
         tl.capacity = tl.capacity.num / tl.capacity.den;
-        vals_xs = [props.solver.origin];
-        vals_ys = [tl.initial_amount];
+        const vals_xs = [props.solver.origin];
+        const vals_ys = [tl.initial_amount];
         for (const val of tl.values) {
           val.from = val.from.num / val.from.den;
           val.to = val.to.num / val.to.den;
@@ -153,13 +156,14 @@ function recompute_timelines() {
           vals_ys.push(tl.values[tl.values.length - 1].end);
         else
           vals_ys.push(tl.initial_amount);
-        traces.get(id).push({ x: vals_xs, y: vals_ys, name: tl.name, type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(id) });
-        traces.get(id).push({ x: [props.solver.origin, props.solver.horizon], y: [tl.capacity, tl.capacity], name: 'Capacity', type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(id) });
+        traces.get(id).push({ x: vals_xs, y: vals_ys, name: tl.name, type: 'scatter', opacity: 0.7, mode: 'lines', fill: 'tozeroy', yaxis: y_axes.get(id) });
+        traces.get(id).push({ x: [props.solver.origin, props.solver.horizon], y: [tl.capacity, tl.capacity], name: 'Capacity', type: 'scatter', opacity: 0.7, mode: 'lines', yaxis: y_axes.get(id) });
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain, start_domain + domain_size], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         break;
+      }
     }
 
     start_domain += domain_size;

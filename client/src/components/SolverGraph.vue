@@ -7,6 +7,9 @@ import { Solver } from '@/solver';
 import { onMounted, onUnmounted } from 'vue';
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
+import chroma from 'chroma-js';
+
+const scale = chroma.scale(['#0f0', '#f00']).mode('lrgb').domain([0, 15]);
 
 const props = defineProps({
   solver: {
@@ -27,9 +30,9 @@ let layout = {
 
 const node_listeners = new Map();
 const new_node_listener = (node) => {
-  cy.add({ group: 'nodes', data: { id: node.id, type: 'phi' in node ? 'flaw' : 'resolver', label: node.label, state: node.state, cost: node.cost } });
+  cy.add({ group: 'nodes', data: { id: node.id, type: 'phi' in node ? 'flaw' : 'resolver', label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#666' } });
   cy.layout(layout).run();
-  const node_listener = (node) => { cy.$id(node.id).data({ label: node.label, state: node.state, cost: node.cost }); };
+  const node_listener = (node) => { cy.$id(node.id).data({ label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost, color: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#666' }); };
   props.solver.add_node_listener(node, node_listener);
   node_listeners.set(node, node_listener);
 };
@@ -51,16 +54,16 @@ onMounted(() => {
         selector: 'node[type="flaw"]',
         style: {
           'shape': 'round-rectangle',
-          'background-color': '#666',
-          'label': 'data(id)'
+          'background-color': 'data(color)',
+          'label': 'data(label)'
         }
       },
       {
         selector: 'node[type="resolver"]',
         style: {
           'shape': 'ellipse',
-          'background-color': '#666',
-          'label': 'data(id)'
+          'background-color': 'data(color)',
+          'label': 'data(label)'
         }
       },
       {

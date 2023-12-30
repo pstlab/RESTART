@@ -210,7 +210,7 @@ namespace restart
     void restart_app::state_changed(const coco::coco_executor &exec)
     {
         std::lock_guard<std::recursive_mutex> _(cc.get_mutex());
-        broadcast(executor_state_changed_message(exec.get_executor()));
+        broadcast(executor_state_message(exec.get_executor()));
     }
 
     void restart_app::flaw_created(const coco::coco_executor &, const ratio::flaw &f)

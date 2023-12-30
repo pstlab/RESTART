@@ -95,7 +95,7 @@ export const useAppStore = defineStore('app', {
             this.solvers.set(data.id, new Solver(data.id, data.name, data.state));
             break;
           case 'deleted_solver':
-            this.solvers.delete(data.solver);
+            this.solvers.delete(data.id);
             break;
           case 'state_changed':
             this.solvers.get(data.solver_id).state_changed(data);
