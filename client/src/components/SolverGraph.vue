@@ -25,23 +25,28 @@ let cy;
 let layout = {
   name: 'klay',
   fit: false,
-  animate: true
+  animate: true,
+  klay: {
+    spacing: 100,
+    thoroughness: 7,
+    aspectRatio: 2
+  }
 };
 
 const node_listeners = new Map();
 const new_node_listener = (node) => {
-  cy.add({ group: 'nodes', data: { id: node.id, type: 'phi' in node ? 'flaw' : 'resolver', label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#666' } });
+  cy.add({ group: 'nodes', data: { id: node.id, type: 'phi' in node ? 'flaw' : 'resolver', label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost, color: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#ccc', stroke: stroke_style(node) } });
   cy.layout(layout).run();
-  const node_listener = (node) => { cy.$id(node.id).data({ label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost, color: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#666' }); };
+  const node_listener = (node) => { cy.$id(node.id).data({ label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost, color: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#ccc', stroke: stroke_style(node) }); };
   props.solver.add_node_listener(node, node_listener);
   node_listeners.set(node, node_listener);
 };
 
 const edge_listeners = new Map();
 const new_edge_listener = (edge) => {
-  cy.add({ group: 'edges', data: { id: edge.from + '-' + edge.to, source: edge.from, target: edge.to, state: edge.state } });
+  cy.add({ group: 'edges', data: { id: edge.from + '-' + edge.to, source: edge.from, target: edge.to, state: edge.state, stroke: stroke_style(edge) } });
   cy.layout(layout).run();
-  const edge_listener = (edge) => { cy.$id(edge.from + '-' + edge.to).data({ state: edge.state }); };
+  const edge_listener = (edge) => { cy.$id(edge.from + '-' + edge.to).data({ state: edge.state, stroke: stroke_style(edge) }); };
   props.solver.add_edge_listener(edge, edge_listener);
   edge_listeners.set(edge, edge_listener);
 };
@@ -55,7 +60,10 @@ onMounted(() => {
         style: {
           'shape': 'round-rectangle',
           'background-color': 'data(color)',
-          'label': 'data(label)'
+          'label': 'data(label)',
+          'border-width': '1px',
+          'border-style': 'data(stroke)',
+          'border-color': '#666'
         }
       },
       {
@@ -63,16 +71,21 @@ onMounted(() => {
         style: {
           'shape': 'ellipse',
           'background-color': 'data(color)',
-          'label': 'data(label)'
+          'label': 'data(label)',
+          'border-width': '1px',
+          'border-style': 'data(stroke)',
+          'border-color': '#666'
         }
       },
       {
         selector: 'edge',
         style: {
           'curve-style': 'bezier',
-          'line-color': '#ccc',
-          'target-arrow-color': '#ccc',
-          'target-arrow-shape': 'triangle'
+          'line-color': '#666',
+          'target-arrow-color': '#666',
+          'target-arrow-shape': 'triangle',
+          'width': '1px',
+          'line-style': 'data(stroke)'
         }
       }
     ]
@@ -92,4 +105,17 @@ onUnmounted(() => {
   for (const [edge, edge_listener] of edge_listeners)
     props.solver.remove_edge_listener(edge, edge_listener);
 });
+</script>
+
+<script>
+function stroke_style(node) {
+  switch (node.state) {
+    case 0: // False
+      return 'dotted';
+    case 1: // True
+      return 'solid';
+    case 2: // Undefined
+      return 'dashed';
+  }
+}
 </script>

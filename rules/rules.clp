@@ -40,3 +40,27 @@
         )
     )
 )
+
+(deffunction ending (?solver_ptr ?id)
+    (do-for-fact ((?tsk task) (?t temperature))  (and (eq ?tsk:id ?id) (eq ?tsk:task_type Heating))
+        (if (<= ?t:temp 18)
+            then
+            (println "Still cold")
+            (return FALSE)
+            else
+            (println "It's warm now")
+            (return TRUE)
+        )
+    )
+    (do-for-fact ((?tsk task) (?t temperature))  (and (eq ?tsk:id ?id) (eq ?tsk:task_type Cooling))
+        (if (>= ?t:temp 33)
+            then
+            (println "Still hot")
+            (return FALSE)
+            else
+            (println "It's cool now")
+            (return TRUE)
+        )
+    )
+    (return TRUE)
+)

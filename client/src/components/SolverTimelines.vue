@@ -28,11 +28,12 @@ const layout = {
       x0: props.solver.origin,
       y0: 0,
       x1: props.solver.origin,
-      y1: props.solver.timelines.size,
+      y1: 1,
+      xref: 'x',
+      yref: 'paper',
       line: {
-        color: 'rgb(55, 128, 191)',
-        width: 3,
-        dash: 'dot'
+        color: 'darkgrey',
+        width: 2
       }
     }
   ]
@@ -47,7 +48,7 @@ const timelines_listener = (timelines) => {
 const time_listener = (timestamp) => {
   layout.shapes[0].x0 = timestamp;
   layout.shapes[0].x1 = timestamp;
-  layout.datarevision = timestamp;
+  layout.datarevision = Date.now();
   Plotly.relayout(get_timelines_id(props.solver), layout);
 };
 

@@ -463,9 +463,10 @@ export class Solver {
     resolver_label(resolver) {
         if (resolver.data.type)
             switch (resolver.data.type) {
-                case 'activate':
+                case 'activate_fact':
+                case 'activate_goal':
                     return 'activate';
-                case 'unify':
+                case 'unify_atom':
                     return 'unify';
                 case 'assignment':
                     if (resolver.data.name)
