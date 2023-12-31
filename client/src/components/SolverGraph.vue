@@ -7,7 +7,10 @@ import { Solver } from '@/solver';
 import { onMounted, onUnmounted } from 'vue';
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
+import popper from 'cytoscape-popper';
 import chroma from 'chroma-js';
+import tippy from 'tippy.js';
+import 'tippy.js/themes/light-border.css';
 
 const scale = chroma.scale(['#0f0', '#f00']).mode('lrgb').domain([0, 15]);
 
@@ -21,6 +24,8 @@ const props = defineProps({
 const get_graph_id = (solver) => 'slv-' + solver.id + '-graph';
 
 cytoscape.use(dagre);
+cytoscape.use(popper);
+
 let cy;
 let layout = {
   name: 'dagre',
@@ -29,9 +34,19 @@ let layout = {
   nodeDimensionsIncludeLabels: true
 };
 
+tippy.setDefaultProps({
+  arrow: false,
+  trigger: 'manual',
+  theme: 'light-border',
+  placement: 'bottom'
+});
+
 const node_listeners = new Map();
 const new_node_listener = (node) => {
-  cy.add({ group: 'nodes', data: { id: node.id, type: 'phi' in node ? 'flaw' : 'resolver', label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost, color: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#ccc', stroke: stroke_style(node) } });
+  const n = cy.add({ group: 'nodes', data: { id: node.id, type: 'phi' in node ? 'flaw' : 'resolver', label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost, color: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#ccc', stroke: stroke_style(node) } });
+  n.tippy = tippy(document.createElement('div'), { getReferenceClientRect: n.popperRef().getBoundingClientRect, content: 'phi' in node ? props.solver.flaw_tooltip(node) : props.solver.resolver_tooltip(node), });
+  n.on('mouseover', () => n.tippy.show());
+  n.on('mouseout', () => n.tippy.hide());
   cy.layout(layout).run();
   const node_listener = (node) => { cy.$id(node.id).data({ label: 'phi' in node ? props.solver.flaw_label(node) : props.solver.resolver_label(node), state: node.state, cost: node.cost, color: node.cost < Number.POSITIVE_INFINITY ? scale(node.cost).hex() : '#ccc', stroke: stroke_style(node) }); };
   props.solver.add_node_listener(node, node_listener);
