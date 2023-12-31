@@ -6,7 +6,7 @@
 import { Solver } from '@/solver';
 import { onMounted, onUnmounted } from 'vue';
 import cytoscape from 'cytoscape';
-import klay from 'cytoscape-klay';
+import dagre from 'cytoscape-dagre';
 import chroma from 'chroma-js';
 
 const scale = chroma.scale(['#0f0', '#f00']).mode('lrgb').domain([0, 15]);
@@ -20,17 +20,13 @@ const props = defineProps({
 
 const get_graph_id = (solver) => 'slv-' + solver.id + '-graph';
 
-cytoscape.use(klay);
+cytoscape.use(dagre);
 let cy;
 let layout = {
-  name: 'klay',
+  name: 'dagre',
+  rankDir: 'LR',
   fit: false,
-  animate: true,
-  klay: {
-    spacing: 100,
-    thoroughness: 7,
-    aspectRatio: 2
-  }
+  nodeDimensionsIncludeLabels: true
 };
 
 const node_listeners = new Map();
