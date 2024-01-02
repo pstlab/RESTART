@@ -95,9 +95,9 @@ function recompute_timelines() {
           traces.get(id).push({ x: [val.from, val.to], y: [val.y, val.y], name: val.text, text: [val.text], type: 'scatter', opacity: 0.7, mode: 'lines+text', line: { width: 30 }, textposition: 'middle right', yaxis: y_axes.get(id) });
         }
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis'] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis' + i] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         break;
       case 'StateVariable':
         for (const val of tl.values) {
@@ -108,9 +108,9 @@ function recompute_timelines() {
           traces.get(id).push({ x: [val.from, val.to], y: [i, i], name: val.text, text: [val.text], type: 'scatter', opacity: 0.7, mode: 'lines+text', line: { width: 30 }, textposition: 'middle right', yaxis: y_axes.get(id) });
         }
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis'] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
+          layout['yaxis' + i] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, showticklabels: false, showgrid: false };
         break;
       case 'ReusableResource': {
         tl.capacity = tl.capacity.num / tl.capacity.den;
@@ -128,12 +128,12 @@ function recompute_timelines() {
         }
         vals_xs.push(props.solver.horizon);
         vals_ys.push(0);
-        traces.get(id).push({ x: vals_xs, y: vals_ys, name: tl.name, type: 'scatter', opacity: 0.7, mode: 'lines', fill: 'tozeroy', yaxis: y_axes.get(id) });
+        traces.get(id).push({ x: vals_xs, y: vals_ys, name: props.solver.timeline_name(tl), type: 'scatter', opacity: 0.7, mode: 'lines', fill: 'tozeroy', yaxis: y_axes.get(id) });
         traces.get(id).push({ x: [props.solver.origin, props.solver.horizon], y: [tl.capacity, tl.capacity], name: 'Capacity', type: 'scatter', opacity: 0.7, mode: 'lines', yaxis: y_axes.get(id) });
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis'] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis' + i] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         break;
       }
       case 'ConsumableResource': {
@@ -157,12 +157,12 @@ function recompute_timelines() {
           vals_ys.push(tl.values[tl.values.length - 1].end);
         else
           vals_ys.push(tl.initial_amount);
-        traces.get(id).push({ x: vals_xs, y: vals_ys, name: tl.name, type: 'scatter', opacity: 0.7, mode: 'lines', fill: 'tozeroy', yaxis: y_axes.get(id) });
+        traces.get(id).push({ x: vals_xs, y: vals_ys, name: props.solver.timeline_name(tl), type: 'scatter', opacity: 0.7, mode: 'lines', fill: 'tozeroy', yaxis: y_axes.get(id) });
         traces.get(id).push({ x: [props.solver.origin, props.solver.horizon], y: [tl.capacity, tl.capacity], name: 'Capacity', type: 'scatter', opacity: 0.7, mode: 'lines', yaxis: y_axes.get(id) });
         if (i == 1)
-          layout['yaxis'] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis'] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         else
-          layout['yaxis' + i] = { title: tl.name, domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
+          layout['yaxis' + i] = { title: props.solver.timeline_name(tl), domain: [start_domain + domain_separator, start_domain + domain_size - domain_separator], zeroline: false, range: [0, tl.capacity] };
         break;
       }
     }
