@@ -1,5 +1,5 @@
 <template>
-  <v-window-item class="fill-height" :value="sensor.id" eager>
+  <v-window-item class="fill-height" :value="sensor.id" eager @group:selected="lazy_load">
     <v-card :title="sensor.name" :subtitle="sensor.description">
       <SensorChart :sensor="sensor" />
       <SensorPublisher :sensor="sensor" />
@@ -11,7 +11,6 @@
 import { Sensor } from '@/sensor';
 import SensorChart from './SensorChart.vue';
 import SensorPublisher from './SensorPublisher.vue';
-import { onMounted } from 'vue';
 
 const props = defineProps({
   sensor: {
@@ -20,11 +19,10 @@ const props = defineProps({
   }
 });
 
-onMounted(() => {
-  var d = new Date();
-  d.setMonth(d.getMonth() - 1);
-  d.setHours(0, 0, 0, 0);
-  fetch('http://' + location.host + '/sensor/' + props.sensor.id + '?' + new URLSearchParams({ from: d.getTime() / 1000 }), {
+let loaded = false;
+
+function set_values(from, to = Date.now()) {
+  fetch('http://' + location.host + '/sensor/' + props.sensor.id + '?' + new URLSearchParams({ from: from, to: to }), {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
   }).then(res => {
@@ -40,5 +38,12 @@ onMounted(() => {
       });
     }
   });
-});
+}
+
+function lazy_load() {
+  if (!loaded) {
+    set_values(Date.now() - 1000 * 60 * 60 * 24 * 7);
+    loaded = true;
+  }
+}
 </script>

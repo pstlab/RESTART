@@ -4,6 +4,7 @@
 void create_test_data(restart::restart_db &db)
 {
     db.drop();
+    db.create_instance(COCO_NAME);
     std::vector<coco::parameter_ptr> sn_pars;
     sn_pars.push_back(std::make_unique<coco::integer_parameter>("temperature", -100, 100));
     sn_pars.push_back(std::make_unique<coco::integer_parameter>("humidity", 0, 100));
