@@ -61,7 +61,7 @@ const values_listener = (values, timestamps) => {
         c_colors.set('true', '#00ff00');
         c_colors.set('false', '#ff0000');
         colors.set(par_name, c_colors);
-      } else if (par instanceof SymbolParameter) {
+      } else if (par instanceof SymbolParameter && par.symbols) {
         const color_scale = chroma.scale(['#ff0000', '#00ff00']).mode('lch').colors(par.symbols.length);
         for (let j = 0; j < par.symbols.length; j++)
           c_colors.set(par.symbols[j], color_scale[j]);
@@ -82,7 +82,7 @@ const values_listener = (values, timestamps) => {
           traces.get(par_name)[traces.get(par_name).length - 1].x[1] = vals_xs[j];
         if (j == 0 || String(vals_ys.get(par_name)[j]) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
           let trace = { x: [vals_xs[j], vals_xs[j]], y: [1, 1], name: String(vals_ys.get(par_name)[j]), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
-          if (par instanceof BooleanParameter || par instanceof SymbolParameter)
+          if ((par instanceof BooleanParameter || par instanceof SymbolParameter) && c_colors.has(String(vals_ys.get(par_name)[j])))
             trace.line.color = c_colors.get(String(vals_ys.get(par_name)[j]));
           traces.get(par_name).push(trace);
         }

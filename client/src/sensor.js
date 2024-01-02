@@ -27,7 +27,7 @@ export class StringParameter extends Parameter {
 }
 
 export class SymbolParameter extends Parameter {
-    constructor(name, symbols, default_value = symbols[0]) {
+    constructor(name, symbols, default_value = symbols ? symbols[0] : "") {
         super(name, default_value);
         this.symbols = symbols;
     }

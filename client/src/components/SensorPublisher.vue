@@ -45,6 +45,19 @@ props.sensor.type.parameters.forEach((parameter) => {
   else
     value[parameter.name] = parameter.default;
 });
+
+function new_sensor_data(sensor_id, value) {
+  fetch('http://' + location.host + '/sensor/' + sensor_id, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(value)
+  }).then(res => {
+    if (!res.ok) {
+      const error = res.json();
+      alert(error.message);
+    }
+  })
+}
 </script>
 
 <script>
@@ -59,18 +72,5 @@ function input_type(par) {
     return 'symbol';
   else
     throw new Error(`Unknown parameter type: ${par}`);
-}
-
-function new_sensor_data(sensor_id, value) {
-  fetch('http://' + location.host + '/sensor/' + sensor_id, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(value)
-  }).then(res => {
-    if (!res.ok) {
-      const error = res.json();
-      alert(error.message);
-    }
-  })
 }
 </script>
