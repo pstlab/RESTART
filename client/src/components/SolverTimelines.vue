@@ -38,11 +38,11 @@ const layout = {
     }
   ]
 };
-const colors = new Map();
+const config = { responsive: true };
 
 const timelines_listener = (timelines) => {
   recompute_timelines();
-  Plotly.react(get_timelines_id(props.solver), Array.from(traces.values()).flat(), layout);
+  Plotly.react(get_timelines_id(props.solver), Array.from(traces.values()).flat(), layout, config);
 };
 
 const time_listener = (timestamp) => {
@@ -57,7 +57,7 @@ onMounted(() => {
   props.solver.add_time_listener(time_listener);
 
   recompute_timelines();
-  Plotly.newPlot(get_timelines_id(props.solver), Array.from(traces.values()).flat(), layout);
+  Plotly.newPlot(get_timelines_id(props.solver), Array.from(traces.values()).flat(), layout, config);
 });
 
 onUnmounted(() => {

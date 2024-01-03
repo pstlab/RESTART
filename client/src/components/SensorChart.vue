@@ -20,6 +20,7 @@ const vals_ys = new Map();
 const y_axes = new Map();
 const traces = new Map();
 const layout = { xaxis: { title: 'Time', type: 'date' }, showlegend: false };
+const config = { responsive: true };
 const colors = new Map();
 
 const values_listener = (values, timestamps) => {
@@ -93,7 +94,7 @@ const values_listener = (values, timestamps) => {
     i++;
   }
 
-  Plotly.newPlot(props.sensor.id, Array.from(traces.values()).flat(), layout);
+  Plotly.newPlot(props.sensor.id, Array.from(traces.values()).flat(), layout, config);
 };
 
 const value_listener = (value, timestamp) => {
@@ -120,7 +121,7 @@ const value_listener = (value, timestamp) => {
     }
   }
   layout.datarevision = timestamp;
-  Plotly.react(props.sensor.id, Array.from(traces.values()).flat(), layout);
+  Plotly.react(props.sensor.id, Array.from(traces.values()).flat(), layout, config);
 };
 
 onMounted(() => {
