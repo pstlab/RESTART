@@ -1,31 +1,27 @@
 <template>
-  <v-container class="fill-height">
-    <v-app-bar>
-      <v-app-bar-nav-icon @click="left_drawer = !left_drawer" />
-      <v-app-bar-title>Application</v-app-bar-title>
-      <v-app-bar-nav-icon @click="right_drawer = !right_drawer" />
-    </v-app-bar>
+  <v-app-bar>
+    <v-app-bar-nav-icon @click="left_drawer = !left_drawer" />
+    <v-app-bar-title>Application</v-app-bar-title>
+    <v-app-bar-nav-icon @click="right_drawer = !right_drawer" />
+  </v-app-bar>
 
-    <v-navigation-drawer v-model="left_drawer" location="left">
-      <v-list dense v-model:selected="window_model">
-        <v-list-subheader v-if="store.sensors.size > 0" inset>Sensori</v-list-subheader>
-        <SensorListItem v-for="[id, sensor] in store.sensors" :key="id" :sensor="sensor" />
-        <v-list-subheader v-if="store.solvers.size > 0" inset>Rarionatori</v-list-subheader>
-        <SolverListItem v-for="[id, solver] in store.solvers" :key="id" :solver="solver" />
-      </v-list>
-    </v-navigation-drawer>
-    <v-navigation-drawer v-model="right_drawer" location="right">
-    </v-navigation-drawer>
+  <v-navigation-drawer v-model="left_drawer" location="left">
+    <v-list dense v-model:selected="window_model">
+      <v-list-subheader v-if="store.sensors.size > 0" inset>Sensori</v-list-subheader>
+      <SensorListItem v-for="[id, sensor] in store.sensors" :key="id" :sensor="sensor" />
+      <v-list-subheader v-if="store.solvers.size > 0" inset>Rarionatori</v-list-subheader>
+      <SolverListItem v-for="[id, solver] in store.solvers" :key="id" :solver="solver" />
+    </v-list>
+  </v-navigation-drawer>
+  <v-navigation-drawer v-model="right_drawer" location="right">
+  </v-navigation-drawer>
 
-    <v-main class="fill-height">
-      <v-container class="fill-height">
-        <v-window v-model="window_model" class="fill-height">
-          <Sensor v-for="[id, sensor] in store.sensors" :key="id" :sensor="sensor" />
-          <Solver v-for="[id, solver] in store.solvers" :key="id" :solver="solver" />
-        </v-window>
-      </v-container>
-    </v-main>
-  </v-container>
+  <v-main class="fill-height">
+    <v-window v-model="window_model" class="fill-height">
+      <Sensor v-for="[id, sensor] in store.sensors" :key="id" :sensor="sensor" />
+      <Solver v-for="[id, solver] in store.solvers" :key="id" :solver="solver" />
+    </v-window>
+  </v-main>
 </template>
 
 <script setup>

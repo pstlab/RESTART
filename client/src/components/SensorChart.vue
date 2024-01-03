@@ -1,5 +1,5 @@
 <template>
-  <v-container :id="sensor.id" :style="{ height: sensor.type.parameters.size * 200 + 'px' }" />
+  <v-container fluid :id="sensor.id" :style="{ height: sensor.type.parameters.size * 200 + 'px' }" />
 </template>
   
 <script setup>
