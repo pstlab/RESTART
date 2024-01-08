@@ -104,8 +104,10 @@ namespace restart
         }
         const std::lock_guard<std::recursive_mutex> lock(get_mutex());
         json::json j = json::load(res.body());
+        LOG_DEBUG("Intent: " << j);
         std::string intent = j["intent"]["name"];
         double confidence = j["intent"]["confidence"];
+        broadcast(json::json{{"type", "intent"}, {"intent", intent}, {"confidence", confidence}}.to_string());
     }
 
     void restart_app::on_intent_response(const string_res &res, boost::beast::error_code ec)
@@ -117,6 +119,11 @@ namespace restart
         }
         const std::lock_guard<std::recursive_mutex> lock(get_mutex());
         auto messages = json::load(res.body())["messages"].get_array();
+        for (const auto &action : messages)
+        {
+            LOG_DEBUG("Action: " << action);
+            broadcast(json::json{{"type", "action"}, {"action", action}}.to_string());
+        }
     }
 
     void restart_app::on_response(const string_res &res, boost::beast::error_code ec)
@@ -128,6 +135,11 @@ namespace restart
         }
         const std::lock_guard<std::recursive_mutex> lock(get_mutex());
         auto actions = json::load(res.body()).get_array();
+        for (const auto &action : actions)
+        {
+            LOG_DEBUG("Action: " << action);
+            broadcast(json::json{{"type", "action"}, {"action", action}}.to_string());
+        }
     }
 
     void restart_app::get_sensor_data(const string_req &req, string_res &res)
