@@ -17,9 +17,7 @@
     "cytoscape": "^3.28.1",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-popper": "^2.0.0",
-    "tippy.js": "^6.3.7",
-    "leaflet": "^1.9.4",
-    "leaflet.heat": "^0.2.0"
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
