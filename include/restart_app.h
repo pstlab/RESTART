@@ -3,6 +3,7 @@
 #include "coco_core.h"
 #include "coco_listener.h"
 #include "server.hpp"
+#include "client.hpp"
 
 using string_req = boost::beast::http::request<boost::beast::http::string_body>;
 using string_res = boost::beast::http::response<boost::beast::http::string_body>;
@@ -16,6 +17,16 @@ namespace restart
   {
   public:
     restart_app(restart_db &db, const std::string &dashboard_host = DASHBOARD_HOST, const unsigned short dashboard_port = DASHBOARD_PORT);
+
+  private:
+    friend void understand(Environment *env, UDFContext *udfc, UDFValue *out);
+    void on_intent(const string_res &res, boost::beast::error_code ec);
+
+    friend void trigger_intent(Environment *env, UDFContext *udfc, UDFValue *out);
+    void on_intent_response(const string_res &res, boost::beast::error_code ec);
+
+    friend void compute_response(Environment *env, UDFContext *udfc, UDFValue *out);
+    void on_response(const string_res &res, boost::beast::error_code ec);
 
   private:
     void on_ws_open(network::websocket_session &ws);
@@ -67,6 +78,7 @@ namespace restart
     void broadcast(const json::json &msg) { broadcast(msg.to_string()); }
 
   private:
+    network::plain_client language_client;
     std::unordered_set<network::websocket_session *> sessions;
   };
 } // namespace restart

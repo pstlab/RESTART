@@ -16,8 +16,13 @@ set(COCO_NAME "RESTART" CACHE STRING "The CoCo Application Name" FORCE)
 
 set(DASHBOARD_HOST "0.0.0.0" CACHE STRING "The RESTART Dashboard Host")
 set(DASHBOARD_PORT "8080" CACHE STRING "The RESTART Dashboard Port")
+set(RASA_HOST "127.0.0.1" CACHE STRING "The Rasa Host")
+set(RASA_PORT "5005" CACHE STRING "The Rasa Port")
+
 message(STATUS "Dashboard host:         ${DASHBOARD_HOST}")
 message(STATUS "Dashboard port:         ${DASHBOARD_PORT}")
+message(STATUS "Rasa host:              ${RASA_HOST}")
+message(STATUS "Rasa port:              ${RASA_PORT}")
 
 add_subdirectory(extern/coco)
 add_subdirectory(extern/rationet)
@@ -28,7 +33,7 @@ file(GLOB RESTART_HEADERS include/*.h)
 add_executable(${PROJECT_NAME} ${RESTART_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 target_link_libraries(${PROJECT_NAME} PRIVATE COCO ratioNet)
-target_compile_definitions(${PROJECT_NAME} PRIVATE DASHBOARD_HOST="${DASHBOARD_HOST}" DASHBOARD_PORT=${DASHBOARD_PORT})
+target_compile_definitions(${PROJECT_NAME} PRIVATE DASHBOARD_HOST="${DASHBOARD_HOST}" DASHBOARD_PORT=${DASHBOARD_PORT} RASA_HOST="${RASA_HOST}" RASA_PORT="${RASA_PORT}")
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)

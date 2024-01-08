@@ -5,9 +5,64 @@
 
 namespace restart
 {
-    restart_app::restart_app(restart_db &db, const std::string &restart_app_host, const unsigned short restart_app_port) : coco_core(db), coco_listener(static_cast<coco::coco_core &>(*this)), server(restart_app_host, restart_app_port)
+    void understand(Environment *, UDFContext *udfc, UDFValue *)
+    {
+        auto &app = *static_cast<restart_app *>(udfc->context);
+
+        UDFValue user;
+        if (!UDFFirstArgument(udfc, SYMBOL_BIT, &user))
+            return;
+
+        UDFValue message;
+        if (!UDFNextArgument(udfc, STRING_BIT, &message))
+            return;
+
+        app.language_client.post("/model/parse", json::json{{"text", message.lexemeValue->contents}}.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
+                                                                                                                                { app.on_intent(res, ec); }});
+    }
+    void trigger_intent(Environment *, UDFContext *udfc, UDFValue *)
+    {
+        auto &app = *static_cast<restart_app *>(udfc->context);
+
+        UDFValue user;
+        if (!UDFFirstArgument(udfc, SYMBOL_BIT, &user))
+            return;
+
+        UDFValue intent;
+        if (!UDFNextArgument(udfc, SYMBOL_BIT, &intent))
+            return;
+
+        std::string url = "/conversations/";
+        url += user.lexemeValue->contents;
+        url += "/trigger_intent";
+        app.language_client.post(url.c_str(), json::json{{"name", intent.lexemeValue->contents}}.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
+                                                                                                                            { app.on_intent_response(res, ec); }});
+    }
+    void compute_response(Environment *, UDFContext *udfc, UDFValue *)
+    {
+        auto &app = *static_cast<restart_app *>(udfc->context);
+
+        UDFValue user;
+        if (!UDFFirstArgument(udfc, SYMBOL_BIT, &user))
+            return;
+
+        UDFValue message;
+        if (!UDFNextArgument(udfc, STRING_BIT, &message))
+            return;
+
+        app.language_client.post("/webhooks/rest/webhook", json::json{{"sender", user.lexemeValue->contents}, {"message", message.lexemeValue->contents}}.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
+                                                                                                                                                                                     { app.on_response(res, ec); }});
+    }
+
+    restart_app::restart_app(restart_db &db, const std::string &restart_app_host, const unsigned short restart_app_port) : coco_core(db), coco_listener(static_cast<coco::coco_core &>(*this)), server(restart_app_host, restart_app_port), language_client(RASA_HOST, RASA_PORT, [this]()
+                                                                                                                                                                                                                                                            { LOG("Connected to the language server"); })
     {
         LOG_DEBUG("Creating restart_app..");
+
+        AddUDF(env, "understand", "v", 2, 2, "ys", understand, "understand", this);
+        AddUDF(env, "trigger_intent", "v", 2, 2, "yy", trigger_intent, "trigger_intent", this);
+        AddUDF(env, "compute_response", "v", 2, 2, "ys", compute_response, "compute_response", this);
+
         add_route(boost::beast::http::verb::get, "^/$", std::function{[](const string_req &, file_res &res)
                                                                       {
                                                                           res.result(boost::beast::http::status::ok);
@@ -38,6 +93,41 @@ namespace restart
 
         add_route<boost::beast::http::string_body, boost::beast::http::string_body>(boost::beast::http::verb::get, "^/sensor/.+$", std::bind(&restart_app::get_sensor_data, this, std::placeholders::_1, std::placeholders::_2));
         add_route<boost::beast::http::string_body, boost::beast::http::string_body>(boost::beast::http::verb::post, "^/sensor/.+$", std::bind(&restart_app::add_sensor_data, this, std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void restart_app::on_intent(const string_res &res, boost::beast::error_code ec)
+    {
+        if (ec)
+        {
+            LOG_ERR(ec.message());
+            return;
+        }
+        const std::lock_guard<std::recursive_mutex> lock(get_mutex());
+        json::json j = json::load(res.body());
+        std::string intent = j["intent"]["name"];
+        double confidence = j["intent"]["confidence"];
+    }
+
+    void restart_app::on_intent_response(const string_res &res, boost::beast::error_code ec)
+    {
+        if (ec)
+        {
+            LOG_ERR(ec.message());
+            return;
+        }
+        const std::lock_guard<std::recursive_mutex> lock(get_mutex());
+        auto messages = json::load(res.body())["messages"].get_array();
+    }
+
+    void restart_app::on_response(const string_res &res, boost::beast::error_code ec)
+    {
+        if (ec)
+        {
+            LOG_ERR(ec.message());
+            return;
+        }
+        const std::lock_guard<std::recursive_mutex> lock(get_mutex());
+        auto actions = json::load(res.body()).get_array();
     }
 
     void restart_app::get_sensor_data(const string_req &req, string_res &res)

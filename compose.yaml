@@ -38,3 +38,4 @@ services:
       context: .
       args:
         - MONGO_HOST=restart-db
+        - RASA_HOST=restart-rasa
