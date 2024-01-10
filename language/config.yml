@@ -28,7 +28,7 @@ pipeline:
   - name: SpacyEntityExtractor
     dimensions: ["PERSON", "ORG", "GPE", "LOC"]
   - name: DucklingEntityExtractor
-    url: http://coco-duckling:8000
+    url: http://restart-rasa-duckling:8000
     dimensions: ["time", "number", "amount-of-money", "distance", "duration", "email", "url", "phone-number"]
     locale: it_IT
     timezone: Europe/Rome

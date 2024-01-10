@@ -4,8 +4,8 @@ services:
     image: mongo
     restart: always
 
-  rasa-duckling:
-    container_name: rasa-duckling
+  restart-rasa-duckling:
+    container_name: restart-rasa-duckling
     image: rasa/duckling
     restart: always
 
@@ -19,6 +19,9 @@ services:
   restart-rasa:
     container_name: restart-rasa
     image: restart-rasa
+    depends_on:
+      - restart-rasa-actions
+      - restart-rasa-duckling
     restart: always
     build:
       context: ./language
@@ -27,11 +30,9 @@ services:
     container_name: restart-system
     image: restart-system
     ports:
-      - "8080:8080"
+      - "8082:8080"
     depends_on:
       - restart-db
-      - rasa-duckling
-      - restart-rasa-actions
       - restart-rasa
     restart: always
     build:
