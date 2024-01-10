@@ -31,7 +31,6 @@ import SensorListItem from '@/components/SensorListItem.vue';
 import Sensor from '@/components/Sensor.vue';
 import SolverListItem from './SolverListItem.vue';
 import Solver from './Solver.vue';
-import MapPage from './MapPage.vue';
 
 const left_drawer = ref(false);
 const right_drawer = ref(false);
