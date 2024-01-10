@@ -166,7 +166,7 @@ function getParameterType(par) {
     case 'bool':
       return new BooleanParameter(par.name);
     case 'symbol':
-      return new SymbolParameter(par.name, par.values);
+      return new SymbolParameter(par.name, par.symbols);
     default:
       throw 'Unknown parameter type: ' + par;
   }

@@ -112,9 +112,9 @@ const value_listener = (value, timestamp) => {
     else if (par instanceof BooleanParameter || par instanceof StringParameter || par instanceof SymbolParameter) {
       if (traces.get(par_name).length > 0)
         traces.get(par_name)[traces.get(par_name).length - 1].x[1] = timestamp;
-      if (String(c_value) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
+      if (traces.get(par_name).length == 0 || String(c_value) != traces.get(par_name)[traces.get(par_name).length - 1].name) {
         let trace = { x: [timestamp, timestamp], y: [1, 1], name: String(c_value), type: 'scatter', opacity: 0.7, mode: 'lines', line: { width: 30 }, yaxis: y_axes.get(par_name) };
-        if (par instanceof BooleanParameter || par instanceof SymbolParameter)
+        if (par instanceof BooleanParameter || (par instanceof SymbolParameter && colors.has(par_name)))
           trace.line.color = colors.get(par_name).get(String(c_value));
         traces.get(par_name).push(trace);
       }

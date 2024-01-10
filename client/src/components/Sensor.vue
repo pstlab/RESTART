@@ -26,7 +26,7 @@ function set_values(from, to = Date.now()) {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
   }).then(res => {
-    if (res.status === 200) {
+    if (res.ok)
       res.json().then(data => {
         const values = [];
         const timestamps = [];
@@ -36,13 +36,14 @@ function set_values(from, to = Date.now()) {
         });
         props.sensor.set_values(values, timestamps);
       });
-    }
+    else
+      res.json().then(data => alert(data.message));
   });
 }
 
 function lazy_load() {
   if (!loaded) {
-    set_values(Date.now() - 1000 * 60 * 60 * 24 * 7);
+    set_values(Date.now() - 1000 * 60 * 60 * 24 * 14);
     loaded = true;
   }
 }
