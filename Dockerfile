@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install build-essential libboost-all-dev cmake lib
 ARG GITHUB_TOKEN=no_token
 ARG MONGODB_HOST=restart-db
 ARG MONGODB_PORT=27017
+ARG RASA_HOST=restart-rasa
+ARG RASA_PORT=5005
 
 # Configure Git to use the GitHub token
 RUN if [ "${GITHUB_TOKEN}" != "no_token" ]; then git config --global credential.helper '!f() { echo "username=oauth2" ; echo "password=${GITHUB_TOKEN}" ; }; f'; fi
@@ -48,7 +50,7 @@ RUN source ~/.nvm/nvm.sh && nvm install node && nvm alias default node
 WORKDIR /home
 RUN git clone --recursive https://github.com/pstlab/RESTART
 WORKDIR /home/RESTART
-RUN mkdir build && cd build && cmake -DVERBOSE_LOG=ON -DMONGODB_HOST=${MONGODB_HOST} -DMONGODB_PORT=${MONGODB_PORT} .. && make
+RUN mkdir build && cd build && cmake -DVERBOSE_LOG=ON -DMONGODB_HOST=${MONGODB_HOST} -DMONGODB_PORT=${MONGODB_PORT} -DRASA_HOST=${RASA_HOST} -DRASA_PORT=${RASA_PORT} .. && make
 COPY ./rules /home/rules
 
 # Install the front-end
