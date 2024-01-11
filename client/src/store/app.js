@@ -8,6 +8,7 @@ export const useAppStore = defineStore('app', {
     sensor_types: new Map(),
     sensors: new Map(),
     solvers: new Map(),
+    messages: [],
   }),
   actions: {
     connect(url = 'ws://' + location.host + '/restart', timeout = 1000) {
@@ -26,6 +27,10 @@ export const useAppStore = defineStore('app', {
         const data = JSON.parse(e.data);
         console.log(data);
         switch (data.type) {
+          case 'message':
+            data.timestamp = new Date(data.timestamp * 1000);
+            this.messages.push(data);
+            break;
           case 'sensor_types':
             this.sensor_types.clear();
             for (const sensor_type of data.sensor_types) {

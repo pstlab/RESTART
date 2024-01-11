@@ -16,6 +16,7 @@
       </v-navigation-drawer>
       <v-navigation-drawer expand-on-hover rail location="right">
         <v-list dense v-model:selected="window_model">
+          <v-list-item v-for="message in messages" :key="message.timestamp" :title="message.text" prepend-icon="mdi-message-text-outline" />
         </v-list>
       </v-navigation-drawer>
 
