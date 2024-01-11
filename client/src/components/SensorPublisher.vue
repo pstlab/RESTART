@@ -52,10 +52,8 @@ function new_sensor_data(sensor_id, value) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(value)
   }).then(res => {
-    if (!res.ok) {
-      const error = res.json();
-      alert(error.message);
-    }
+    if (!res.ok)
+      res.json().then(data => alert(data.message));
   })
 }
 </script>

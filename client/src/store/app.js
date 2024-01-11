@@ -26,8 +26,6 @@ export const useAppStore = defineStore('app', {
         const data = JSON.parse(e.data);
         console.log(data);
         switch (data.type) {
-          case 'login':
-            break;
           case 'sensor_types':
             this.sensor_types.clear();
             for (const sensor_type of data.sensor_types) {

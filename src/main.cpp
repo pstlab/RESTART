@@ -4,13 +4,24 @@
 void create_test_data(restart::restart_db &db)
 {
     db.drop();
+
+    // we create a new COCO instance..
     db.create_instance(COCO_NAME);
-    std::vector<coco::parameter_ptr> sn_pars;
-    sn_pars.push_back(std::make_unique<coco::integer_parameter>("temperature", -100, 100));
-    sn_pars.push_back(std::make_unique<coco::integer_parameter>("humidity", 0, 100));
-    sn_pars.push_back(std::make_unique<coco::integer_parameter>("pressure", 0, 1000));
-    auto sn_type_id = db.create_sensor_type("sensor_node", "A sensor that measures some environmental parameters", std::move(sn_pars));
-    auto sn_id = db.create_sensor("env1", db.get_sensor_type(sn_type_id), std::make_unique<coco::location>(0, 0));
+
+    // we create the sensor types..
+    std::vector<coco::parameter_ptr> env_pars;
+    env_pars.push_back(std::make_unique<coco::integer_parameter>("temperature", -100, 100));
+    env_pars.push_back(std::make_unique<coco::integer_parameter>("humidity", 0, 100));
+    env_pars.push_back(std::make_unique<coco::integer_parameter>("pressure", 0, 1000));
+    auto env_type_id = db.create_sensor_type("sensor_node", "A sensor that measures some environmental parameters", std::move(env_pars));
+
+    std::vector<coco::parameter_ptr> prompt_pars;
+    prompt_pars.push_back(std::make_unique<coco::string_parameter>("message"));
+    auto prompt_type_id = db.create_sensor_type("prompt", "A sensor that prompts the user for some input", std::move(prompt_pars));
+
+    // we create the sensors..
+    auto sn_id = db.create_sensor("env", db.get_sensor_type(env_type_id), std::make_unique<coco::location>(0, 0));
+    auto prompt_id = db.create_sensor("prompt", db.get_sensor_type(prompt_type_id), std::make_unique<coco::location>(0, 0));
 }
 
 int main(int argc, char **argv)
