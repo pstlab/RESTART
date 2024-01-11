@@ -28,11 +28,15 @@ namespace restart
     friend void compute_response(Environment *env, UDFContext *udfc, UDFValue *out);
     void on_response(const string_res &res, boost::beast::error_code ec);
 
+    friend void say(Environment *env, UDFContext *udfc, UDFValue *out);
+
   private:
     void on_ws_open(network::websocket_session &ws);
     void on_ws_message(network::websocket_session &ws, const std::string &msg);
     void on_ws_close(network::websocket_session &ws);
     void on_ws_error(network::websocket_session &ws, const boost::system::error_code &ec);
+
+    void new_message(const std::string &device, const std::string &content);
 
     void get_sensor_data(const string_req &req, string_res &res);
     void add_sensor_data(const string_req &req, string_res &res);

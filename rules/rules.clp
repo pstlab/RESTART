@@ -39,10 +39,29 @@
             (adapt_script (get_environment_solver) (str-cat "fact temp = new thermostat.Temperature(start: 0.0, end: 10.0, temp: " (float ?temp) "); goal comf = new thermostat.Comfort();"))
         )
     )
+    (if (eq (fact-slot-value ?sensor_type name) "prompt")
+        then
+        (bind ?message (nth$ 1 ?data))
+        (understand (sym-cat 42) ?message)
+    )
 )
 
 (deffunction ending (?solver_ptr ?id)
     (do-for-fact ((?tsk task) (?t temperature)) (and (eq ?tsk:id ?id) (eq ?tsk:task_type Heating) (<= ?t:temp 18)) (return FALSE))
     (do-for-fact ((?tsk task) (?t temperature)) (and (eq ?tsk:id ?id) (eq ?tsk:task_type Cooling) (>= ?t:temp 33)) (return FALSE))
     (return TRUE)
+)
+
+(deffunction intent (?name ?confidence)
+    (if (eq ?name greet)
+        then
+        (say web "Ciao! Come posso aiutarti?")
+        (return)
+    )
+    (if (eq ?name goodbye)
+        then
+        (say web "Arrivederci!")
+        (return)
+    )
+    (say web "Non ho capito")
 )

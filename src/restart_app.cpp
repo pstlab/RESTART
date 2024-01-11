@@ -53,6 +53,20 @@ namespace restart
         app.language_client.post("/webhooks/rest/webhook", json::json{{"sender", user.lexemeValue->contents}, {"message", message.lexemeValue->contents}}.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
                                                                                                                                                                                      { app.on_response(res, ec); }});
     }
+    void say(Environment *, UDFContext *udfc, UDFValue *)
+    {
+        auto &app = *static_cast<restart_app *>(udfc->context);
+
+        UDFValue device;
+        if (!UDFFirstArgument(udfc, SYMBOL_BIT, &device))
+            return;
+
+        UDFValue content;
+        if (!UDFNextArgument(udfc, STRING_BIT, &content))
+            return;
+
+        app.new_message(device.lexemeValue->contents, content.lexemeValue->contents);
+    }
 
     restart_app::restart_app(restart_db &db, const std::string &restart_app_host, const unsigned short restart_app_port) : coco_core(db), coco_listener(static_cast<coco::coco_core &>(*this)), server(restart_app_host, restart_app_port), language_client(RASA_HOST, RASA_PORT, [this]()
                                                                                                                                                                                                                                                             { LOG("Connected to the language server"); })
@@ -62,6 +76,7 @@ namespace restart
         AddUDF(env, "understand", "v", 2, 2, "ys", understand, "understand", this);
         AddUDF(env, "trigger_intent", "v", 2, 2, "yy", trigger_intent, "trigger_intent", this);
         AddUDF(env, "compute_response", "v", 2, 2, "ys", compute_response, "compute_response", this);
+        AddUDF(env, "say", "v", 2, 2, "ys", say, "say", this);
 
         add_route(boost::beast::http::verb::get, "^/$", std::function{[](const string_req &, file_res &res)
                                                                       {
@@ -107,6 +122,13 @@ namespace restart
         LOG_DEBUG("Intent: " << j);
         std::string intent = j["intent"]["name"];
         double confidence = j["intent"]["confidence"];
+
+        auto intent_call = CreateFunctionCallBuilder(env, 2);
+        FCBAppendSymbol(intent_call, intent.c_str());
+        FCBAppendFloat(intent_call, confidence);
+        FCBCall(intent_call, "intent", nullptr);
+        Run(env, -1);
+
         broadcast(json::json{{"type", "intent"}, {"intent", intent}, {"confidence", confidence}}.to_string());
     }
 
@@ -140,6 +162,12 @@ namespace restart
             LOG_DEBUG("Action: " << action);
             broadcast(json::json{{"type", "action"}, {"action", action}}.to_string());
         }
+    }
+
+    void restart_app::new_message(const std::string &device, const std::string &content)
+    {
+        const std::lock_guard<std::recursive_mutex> lock(get_mutex());
+        broadcast(json::json{{"type", "message"}, {"device", device}, {"text", content}}.to_string());
     }
 
     void restart_app::get_sensor_data(const string_req &req, string_res &res)
