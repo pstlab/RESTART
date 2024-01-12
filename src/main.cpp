@@ -19,9 +19,14 @@ void create_test_data(restart::restart_db &db)
     prompt_pars.push_back(std::make_unique<coco::string_parameter>("message"));
     auto prompt_type_id = db.create_sensor_type("prompt", "A sensor that prompts the user for some input", std::move(prompt_pars));
 
+    std::vector<coco::parameter_ptr> emotion_pars;
+    emotion_pars.push_back(std::make_unique<coco::symbol_parameter>("emotion", std::vector<std::string>{"happy", "sad", "angry"}));
+    auto emotion_type_id = db.create_sensor_type("emotion", "A sensor that measures the user's emotion", std::move(emotion_pars));
+
     // we create the sensors..
     auto sn_id = db.create_sensor("env", db.get_sensor_type(env_type_id), std::make_unique<coco::location>(0, 0));
     auto prompt_id = db.create_sensor("prompt", db.get_sensor_type(prompt_type_id), std::make_unique<coco::location>(0, 0));
+    auto emotion_id = db.create_sensor("emotion", db.get_sensor_type(emotion_type_id), std::make_unique<coco::location>(0, 0));
 }
 
 int main(int argc, char **argv)

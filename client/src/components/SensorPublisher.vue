@@ -15,8 +15,8 @@
               :rules="[v => v !== null || 'Value is required', v => par.min <= v || 'Value must be greater than or equal to ' + par.min, v => par.max >= v || 'Value must be less than or equal to ' + par.max]"
               :label="name" required />
             <v-checkbox v-else-if="input_type(par) == 'checkbox'" v-model="value[name]" :label="name" required />
-            <v-combobox v-else-if="input_type(par) == 'symbol' && par.values && par.values.length > 0"
-              v-model="value[name]" :label="name" :items="par.values" required />
+            <v-combobox v-else-if="input_type(par) == 'symbol' && par.symbols && par.symbols.length > 0"
+              v-model="value[name]" :label="name" :items="par.symbols" required />
             <v-text-field v-else v-model="value[name]" :type="input_type(par)" :rules="[v => !!v || 'Value is required']"
               :label="name" required />
           </td>
