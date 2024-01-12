@@ -1,9 +1,9 @@
 (deftemplate environment_state (slot temperature (type NUMBER)))
-(deftemplate user_state (slot emotion (type SYMBOL)))
+(deftemplate user_state (slot gender (type SYMBOL) (allowed-values male female)) (slot emotion (type SYMBOL)))
 
 (deffacts initial
-    (environment_state (temperature 20)
-    (user_state (emotion happy))
+    (environment_state (temperature 20))
+    (user_state (gender male) (emotion happy))
 )
 
 (defrule start_solver_when_idle (solver (solver_ptr ?sp) (state idle)) => (start_execution ?sp))
@@ -53,6 +53,8 @@
     (do-for-fact ((?us user_state)) TRUE
         (if (and (eq ?name greet) (eq ?us:emotion happy)) then (say web "Ciao! Come posso aiutarti?") (return))
         (if (and (eq ?name greet) (eq ?us:emotion sad)) then (say web "Ciao! Va tutto bene?") (return))
+        (if (and (eq ?name greet) (eq ?us:emotion angry) (eq ?us:gender male)) then (say web "Ciao! Sei arrabbiato?") (return))
+        (if (and (eq ?name greet) (eq ?us:emotion angry) (eq ?us:gender female)) then (say web "Ciao! Sei arrabbiata?") (return))
         (if (eq ?name goodbye) then (say web "Arrivederci!") (return))
     )
     (say web "Non ho capito")
