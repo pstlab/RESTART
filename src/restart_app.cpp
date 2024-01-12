@@ -142,21 +142,25 @@ namespace restart
         auto entities = j["entities"].get_array();
         auto es = CreateMultifieldBuilder(env, entities.size());
         auto vs = CreateMultifieldBuilder(env, entities.size());
+        auto cs = CreateMultifieldBuilder(env, entities.size());
         for (const auto &entity : entities)
         {
             MBAppendSymbol(es, static_cast<std::string>(entity["entity"]).c_str());
             MBAppendString(vs, static_cast<std::string>(entity["value"]).c_str());
+            MBAppendFloat(cs, static_cast<double>(entity["confidence"]));
         }
 
-        auto intent_call = CreateFunctionCallBuilder(env, 4);
-        FCBAppendSymbol(intent_call, intent.c_str());
-        FCBAppendFloat(intent_call, confidence);
-        FCBAppendMultifield(intent_call, MBCreate(es));
-        FCBAppendMultifield(intent_call, MBCreate(vs));
-        FCBCall(intent_call, "intent", nullptr);
-        Run(env, -1);
+        auto intent_fact_builder = CreateFactBuilder(env, "intent");
+        FBPutSlotSymbol(intent_fact_builder, "name", intent.c_str());
+        FBPutSlotFloat(intent_fact_builder, "confidence", confidence);
+        FBPutSlotMultifield(intent_fact_builder, "entities", MBCreate(es));
+        FBPutSlotMultifield(intent_fact_builder, "values", MBCreate(vs));
+        FBPutSlotMultifield(intent_fact_builder, "confidences", MBCreate(cs));
 
-        broadcast(json::json{{"type", "intent"}, {"intent", intent}, {"confidence", confidence}}.to_string());
+        auto intent_fact = FBAssert(intent_fact_builder);
+        Run(env, -1);
+        Retract(intent_fact);
+        Run(env, -1);
     }
 
     void restart_app::on_intent_response(const string_res &res, boost::beast::error_code ec)
