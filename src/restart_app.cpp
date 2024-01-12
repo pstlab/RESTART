@@ -32,11 +32,28 @@ namespace restart
         if (!UDFNextArgument(udfc, SYMBOL_BIT, &intent))
             return;
 
+        json::json body{{"name", intent.lexemeValue->contents}};
+
+        UDFValue entities;
+        UDFValue values;
+        if (UDFNextArgument(udfc, MULTIFIELD_BIT, &entities) && UDFNextArgument(udfc, MULTIFIELD_BIT, &values))
+        {
+            auto es = entities.multifieldValue;
+            auto vs = values.multifieldValue;
+            if (es->length != vs->length)
+                return;
+
+            json::json entities;
+            for (std::size_t i = 0; i < es->length; ++i)
+                entities[es->contents[i].lexemeValue->contents] = vs->contents[i].lexemeValue->contents;
+            body["entities"] = entities;
+        }
+
         std::string url = "/conversations/";
         url += user.lexemeValue->contents;
         url += "/trigger_intent";
-        app.language_client.post(url.c_str(), json::json{{"name", intent.lexemeValue->contents}}.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
-                                                                                                                            { app.on_intent_response(res, ec); }});
+        app.language_client.post(url.c_str(), body.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
+                                                                              { app.on_intent_response(res, ec); }});
     }
     void compute_response(Environment *, UDFContext *udfc, UDFValue *)
     {
@@ -74,7 +91,7 @@ namespace restart
         LOG_DEBUG("Creating restart_app..");
 
         AddUDF(env, "understand", "v", 2, 2, "ys", understand, "understand", this);
-        AddUDF(env, "trigger_intent", "v", 2, 2, "yy", trigger_intent, "trigger_intent", this);
+        AddUDF(env, "trigger_intent", "v", 2, 4, "yymm", trigger_intent, "trigger_intent", this);
         AddUDF(env, "compute_response", "v", 2, 2, "ys", compute_response, "compute_response", this);
         AddUDF(env, "say", "v", 2, 2, "ys", say, "say", this);
 
@@ -122,10 +139,20 @@ namespace restart
         LOG_DEBUG("Intent: " << j);
         std::string intent = j["intent"]["name"];
         double confidence = j["intent"]["confidence"];
+        auto entities = j["entities"].get_array();
+        auto es = CreateMultifieldBuilder(env, entities.size());
+        auto vs = CreateMultifieldBuilder(env, entities.size());
+        for (const auto &entity : entities)
+        {
+            MBAppendSymbol(es, static_cast<std::string>(entity["entity"]).c_str());
+            MBAppendString(vs, static_cast<std::string>(entity["value"]).c_str());
+        }
 
-        auto intent_call = CreateFunctionCallBuilder(env, 2);
+        auto intent_call = CreateFunctionCallBuilder(env, 4);
         FCBAppendSymbol(intent_call, intent.c_str());
         FCBAppendFloat(intent_call, confidence);
+        FCBAppendMultifield(intent_call, MBCreate(es));
+        FCBAppendMultifield(intent_call, MBCreate(vs));
         FCBCall(intent_call, "intent", nullptr);
         Run(env, -1);
 
