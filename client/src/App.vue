@@ -8,6 +8,7 @@
     <v-main>
       <v-navigation-drawer expand-on-hover rail location="left">
         <v-list dense v-model:selected="window_model">
+          <v-list-item value="chat" title="Chat" prepend-icon="mdi-message-text-outline" />
           <v-list-subheader v-if="solvers.size > 0" inset>Ragionatori</v-list-subheader>
           <SolverListItem v-for="[id, solver] in solvers" :key="id" :solver="solver" />
           <v-list-subheader v-if="sorted_sensors(sensors).size > 0" inset>Sensori</v-list-subheader>
@@ -16,11 +17,13 @@
       </v-navigation-drawer>
       <v-navigation-drawer expand-on-hover rail location="right">
         <v-list dense v-model:selected="window_model">
-          <v-list-item v-for="message in messages" :key="message.timestamp" :title="message.text" prepend-icon="mdi-message-text-outline" />
+          <v-list-item v-for="message in messages" :key="message.timestamp" :title="message.text"
+            prepend-icon="mdi-message-text-outline" />
         </v-list>
       </v-navigation-drawer>
 
       <v-window v-model="window_model" class="fill-height">
+        <Chat />
         <Sensor v-for="[id, sensor] in sorted_sensors(sensors)" :key="id" :sensor="sensor" />
         <Solver v-for="[id, solver] in solvers" :key="id" :solver="solver" />
       </v-window>
@@ -36,8 +39,9 @@ import SolverListItem from './components/SolverListItem.vue';
 import SensorListItem from './components/SensorListItem.vue';
 import Sensor from './components/Sensor.vue';
 import Solver from './components/Solver.vue';
+import Chat from './components/Chat.vue';
 
-const window_model = ref([]);
+const window_model = ref(['chat']);
 
 const { sensors, solvers, messages } = storeToRefs(useAppStore());
 </script>
