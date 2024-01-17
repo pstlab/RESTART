@@ -43,7 +43,7 @@ props.sensor.type.parameters.forEach((parameter) => {
   if (props.sensor.lastValue && props.sensor.lastValue[parameter.name])
     value[parameter.name] = props.sensor.lastValue[parameter.name];
   else
-    value[parameter.name] = parameter.default;
+    value[parameter.name] = parameter.default_value;
 });
 
 function new_sensor_data(sensor_id, value) {

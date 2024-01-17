@@ -3,22 +3,30 @@ services:
     container_name: restart-db
     image: mongo
     restart: always
+    networks:
+      - restart-net
 
   restart-rasa-duckling:
     container_name: restart-rasa-duckling
     image: rasa/duckling
     restart: always
+    networks:
+      - restart-net
 
   restart-rasa-actions:
     container_name: restart-rasa-actions
     image: restart-rasa-actions
     restart: always
+    networks:
+      - restart-net
     build:
       context: ./language/actions
 
   restart-rasa:
     container_name: restart-rasa
     image: restart-rasa
+    networks:
+      - restart-net
     depends_on:
       - restart-rasa-actions
       - restart-rasa-duckling
@@ -31,6 +39,8 @@ services:
     image: restart-system
     ports:
       - "8080:8080"
+    networks:
+      - restart-net
     depends_on:
       - restart-db
       - restart-rasa
@@ -40,3 +50,6 @@ services:
       args:
         - MONGO_HOST=restart-db
         - RASA_HOST=restart-rasa
+
+networks:
+  restart-net:
