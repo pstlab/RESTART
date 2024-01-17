@@ -161,9 +161,9 @@ export const useAppStore = defineStore('app', {
 function getParameterType(par) {
   switch (par.type) {
     case 'int':
-      return new IntegerParameter(par.name, par.min, par.max);
+      return new IntegerParameter(par.name, par.min === undefined ? -Infinity : par.min, par.max === undefined ? Infinity : par.max);
     case 'float':
-      return new FloatParameter(par.name, par.min, par.max);
+      return new FloatParameter(par.name, par.min === undefined ? -Infinity : par.min, par.max === undefined ? Infinity : par.max);
     case 'string':
       return new StringParameter(par.name);
     case 'bool':
