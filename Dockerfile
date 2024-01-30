@@ -1,6 +1,7 @@
-FROM ubuntu:22.04
-WORKDIR /home
-RUN apt-get update && apt-get install build-essential libboost-all-dev cmake libssl-dev git wget curl python3 -y
+FROM pstlab/coco_base
+
+# Expose the port that RESTART uses to run
+EXPOSE 8080
 
 # Define environment variables
 ARG GITHUB_TOKEN=no_token

@@ -38,7 +38,7 @@ services:
     container_name: restart-system
     image: restart-system
     ports:
-      - "8080:8080"
+      - "8081:8080"
     networks:
       - restart-net
     depends_on:
