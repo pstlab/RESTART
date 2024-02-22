@@ -16,12 +16,12 @@ stateDiagram-v2
     state fork_state <<fork>>
     Say(intro2) --> fork_state
     fork_state --> ShowFigs(n)
-    fork_state --> DescribeFigs(n)
-    DescribeFigs(n) --> Say(wait): correct
-    DescribeFigs(n) --> Say(wait): wrong
-    Say(wait) --> DescribeFigs(n)
-    DescribeFigs(n) --> EndDescription(n): finish
-    EndDescription(n) --> Note(R,n): 8s
+    fork_state --> StartSay(n)
+    StartSay(n) --> Say(wait): correct
+    StartSay(n) --> Say(wait): wrong
+    Say(wait) --> StartSay(n)
+    StartSay(n) --> EndSay(n): finish
+    EndSay(n) --> Note(R,n): 8s
     Note(R,n) --> RepeatFigs(n)
     RepeatFigs(n) --> Note(N,n): 8s
     RepeatFigs(n) --> Note(n): correct
@@ -33,16 +33,16 @@ stateDiagram-v2
     join_state --> fork_state: n < 18
     join_state --> Success: n = 18
     Success --> [*]
-    EndDescription(n) --> Note(S,n): wrong
+    EndSay(n) --> Note(S,n): wrong
     Note(S,n) --> Note(N,n): 8s
     Note(S,n) --> Note(S,n): wrong
     Note(S,n) --> Note(n): correct
     Note(n) --> Next(n): 5s
     Note(n) --> Note(S,n): another
-    EndDescription(n) --> Note(N,n): talks
-    EndDescription(n) --> Say(other): persists
+    EndSay(n) --> Note(N,n): talks
+    EndSay(n) --> Say(other): persists
     Say(other) --> Note(S,n)
-    EndDescription(n) --> RepeatFigs(n): distract
+    EndSay(n) --> RepeatFigs(n): distract
 ```
 
 This directory contains the rules for the RESTART project. There are two types of rules:
