@@ -2,7 +2,6 @@
 
 ```mermaid
 stateDiagram-v2
-    direction LR
     [*] --> ShowFigs(1)
     ShowFigs(1) --> Say(intro): 10s
     Say(intro) --> Note(1): correct
