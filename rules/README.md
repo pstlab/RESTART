@@ -4,34 +4,40 @@
 stateDiagram-v2
     direction LR
     [*] --> ShowFigs(1)
-    ShowFigs(1) --> Intro(1): 10s
-    Intro(1) --> Note(1): correct
-    Intro(1) --> Repeat(1): 8s
-    Intro(1) --> Intro(1): talks
-    Repeat(1) --> [*]: 8s
-    Repeat(1) --> Note(1): correct
-    Repeat(1) --> [*]: wrong
-    Note(1) --> Intro(2)
-    Intro(2) --> ShowFigs(n)
-    ShowFigs(n) --> DescribeFigs(n)
-    DescribeFigs(n) --> R(n): 8s
-    R(n) --> RepeatFigs(n)
-    RepeatFigs(n) --> N(n): 8s
+    ShowFigs(1) --> Say(intro): 10s
+    Say(intro) --> Note(1): correct
+    Say(intro) --> Repeat(intro): 8s
+    Say(intro) --> Say(intro): asks
+    Repeat(intro) --> Failure: 8s
+    Failure --> [*]
+    Repeat(intro) --> Note(1): correct
+    Repeat(intro) --> Failure: wrong
+    Note(1) --> Say(intro2)
+    state fork_state <<fork>>
+    Say(intro2) --> fork_state
+    fork_state --> ShowFigs(n)
+    fork_state --> DescribeFigs(n)
+    DescribeFigs(n) --> Note(R,n): 8s
+    Note(R,n) --> RepeatFigs(n)
+    RepeatFigs(n) --> Note(N,n): 8s
     RepeatFigs(n) --> Note(n): correct
-    RepeatFigs(n) --> S(n): wrong
-    N(n) --> Next(n)
-    Next(n) --> ShowFigs(n): n < 18
-    Next(n) --> Conclusion: n = 18
-    Conclusion --> [*]
-    DescribeFigs(n) --> S(n): wrong
-    S(n) --> N(n): 8s
-    S(n) --> S(n): wrong
-    S(n) --> Note(n): correct
+    RepeatFigs(n) --> Note(S,n): wrong
+    Note(N,n) --> Next(n)
+    state join_state <<join>>
+    Next(n) --> join_state
+    ShowFigs(n) --> join_state
+    join_state --> fork_state: n < 18
+    join_state --> Success: n = 18
+    Success --> [*]
+    DescribeFigs(n) --> Note(S,n): wrong
+    Note(S,n) --> Note(N,n): 8s
+    Note(S,n) --> Note(S,n): wrong
+    Note(S,n) --> Note(n): correct
     Note(n) --> Next(n): 5s
-    Note(n) --> S(n): another
-    DescribeFigs(n) --> N(n): talks
-    DescribeFigs(n) --> OtherFigures: persists
-    OtherFigures --> S(n)
+    Note(n) --> Note(S,n): another
+    DescribeFigs(n) --> Note(N,n): talks
+    DescribeFigs(n) --> Say(other): persists
+    Say(other) --> Note(S,n)
     DescribeFigs(n) --> RepeatFigs(n): distract
 ```
 
