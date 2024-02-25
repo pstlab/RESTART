@@ -1,12 +1,14 @@
 (deftemplate environment_state (slot temperature (type NUMBER)))
 (deftemplate user_state (slot gender (type SYMBOL) (allowed-values male female)) (slot emotion (type SYMBOL)))
 (deftemplate intent (slot name (type SYMBOL)) (slot confidence (type NUMBER)) (multislot entities) (multislot values) (multislot confidences))
+(deftemplate waiting_for_affirm (slot task_id (type SYMBOL)))
 
 (defrule happy_greet (intent (name greet)) (user_state (emotion happy)) => (say web "Ciao! Come posso aiutarti?"))
 (defrule sad_greet (intent (name greet)) (user_state (emotion sad)) => (say web "Ciao! Va tutto bene?"))
 (defrule angry_male_greet (intent (name greet)) (user_state (emotion angry) (gender male)) => (say web "Ciao! Sei arrabbiato?"))
 (defrule angry_female_greet (intent (name greet)) (user_state (emotion angry) (gender female)) => (say web "Ciao! Sei arrabbiata?"))
 (defrule angry_goodbye (intent (name goodbye)) (user_state (emotion angry)) => (say web "Arrivederci! Spero di non averti fatto arrabbiare"))
+(defrule affirm (intent (name affirm)) => (do-for-all-facts ((?wfa waiting_for_affirm)) TRUE (retract ?wfa)))
 (defrule nlu_fallback (intent (name nlu_fallback)) => (say web "Non ho capito, puoi ripetere?"))
 
 (defrule start_solver_when_idle (solver (solver_ptr ?sp) (state idle)) => (start_execution ?sp))
@@ -46,10 +48,36 @@
     )
 )
 
+
+(deffunction start (?solver_ptr ?id ?task_type ?pars ?vals)
+    (add_task ?solver_ptr ?id ?task_type ?pars ?vals)
+    (if (eq ?task_type AskingHeater)
+        then
+        (bind ?temp (nth$ 5 ?vals))
+        (say web (str-cat "La temperatura è di " ?temp " gradi. Vuoi accendere il riscaldamento?"))
+        (assert (waiting_for_affirm (task_id ?id)))
+    )
+    (if (eq ?task_type AskingCooler)
+        then
+        (bind ?temp (nth$ 5 ?vals))
+        (say web (str-cat "La temperatura è di " ?temp " gradi. Vuoi accendere il condizionatore?"))
+        (assert (waiting_for_affirm (task_id ?id)))
+    )
+    (if (eq ?task_type Heating) then (say web "Ho acceso il riscaldamento. Resterà acceso finché non la temperatura non sarà accettabile."))
+    (if (eq ?task_type Cooling) then (say web "Ho acceso il condizionatore. Resterà acceso finché non la temperatura non sarà accettabile."))
+)
+
 (deffunction ending (?solver_ptr ?id)
+    (do-for-fact ((?tsk task) (?wfa waiting_for_affirm)) (and (eq ?tsk:id ?id) (eq ?tsk:id ?wfa:task_id)) (return FALSE))
     (do-for-fact ((?tsk task) (?es environment_state)) (and (eq ?tsk:id ?id) (eq ?tsk:task_type Heating) (<= ?es:temperature 18)) (return FALSE))
     (do-for-fact ((?tsk task) (?es environment_state)) (and (eq ?tsk:id ?id) (eq ?tsk:task_type Cooling) (>= ?es:temperature 33)) (return FALSE))
     (return TRUE)
+)
+
+(deffunction end (?solver_ptr ?id)
+    (do-for-fact ((?tsk task) (?es environment_state)) (and (eq ?tsk:id ?id) (eq ?tsk:task_type Heating)) (say web (str-cat "La temperatura è di " ?es:temperature " gradi. Ho spento il riscaldamento.")))
+    (do-for-fact ((?tsk task) (?es environment_state)) (and (eq ?tsk:id ?id) (eq ?tsk:task_type Cooling)) (say web (str-cat "La temperatura è di " ?es:temperature " gradi. Ho spento il condizionatore.")))
+    (remove_task ?solver_ptr ?id)
 )
 
 (deffacts initial

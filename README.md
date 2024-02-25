@@ -43,7 +43,7 @@ docker build -t restart . --build-arg RASA_HOST=restart-rasa --build-arg MONGO_H
 Run the RESTART MongoDB container by running the following command.
 
 ```bash
-docker run -d --name restart-mongo mongo
+docker run -d --name restart-mongo -p 27017:27017 mongo
 ```
 
 Run the RESTART Duckling container by running the following command.
@@ -61,7 +61,7 @@ docker run -d --name restart-rasa-actions restart-rasa-actions
 Run the RESTART Rasa container by running the following command.
 
 ```bash
-docker run -d --name restart-rasa restart-rasa
+docker run -d --name restart-rasa -p 5005:5005 restart-rasa
 ```
 
 Run the RESTART container by running the following command.
