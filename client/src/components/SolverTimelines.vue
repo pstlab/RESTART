@@ -20,6 +20,7 @@ const get_timelines_id = (solver) => 'slv-' + solver.id + '-timelines';
 const y_axes = new Map();
 const traces = new Map();
 const layout = {
+  autosize: true,
   xaxis: { title: 'Time' },
   showlegend: false,
   shapes: [
