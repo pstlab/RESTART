@@ -29,6 +29,7 @@ export const useAppStore = defineStore('app', {
         switch (data.type) {
           case 'message':
             data.timestamp = new Date(data.timestamp * 1000);
+            data.me = false;
             this.messages.push(data);
             break;
           case 'sensor_types':
@@ -154,7 +155,22 @@ export const useAppStore = defineStore('app', {
             break;
         }
       };
-    }
+    },
+    send_message(message) {
+      let sensor_id;
+      for (let sensor of this.sensors.values())
+        if (sensor.name === 'prompt')
+          sensor_id = sensor.id;
+      fetch('http://' + location.host + '/sensor/' + sensor_id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 'message': message })
+      }).then(res => {
+        if (!res.ok)
+          res.json().then(data => alert(data.message));
+      });
+      this.messages.push({ 'me': true, 'timestamp': new Date(), 'text': message });
+    },
   }
 })
 
