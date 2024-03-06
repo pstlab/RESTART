@@ -19,7 +19,7 @@ const vals_xs = [];
 const vals_ys = new Map();
 const y_axes = new Map();
 const traces = new Map();
-const layout = { xaxis: { title: 'Time', type: 'date' }, showlegend: false };
+const layout = { autosize: true, xaxis: { title: 'Time', type: 'date' }, showlegend: false };
 const config = { responsive: true };
 const colors = new Map();
 

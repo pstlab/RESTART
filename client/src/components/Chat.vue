@@ -3,9 +3,8 @@
     <v-card class="d-flex flex-column fill-height">
       <v-card-text>
         <v-list id="chat-list" class="flex-grow-1 overflow-y-auto" style="max-height: calc(100vh - 190px);">
-          <v-list-item v-for="message in messages" :key="message.timestamp"
-            :class="message.me ? 'text-right' : 'text-left'">
-            <v-chip :color="message.me ? 'primary' : 'secondary'" class="white--text">{{ message.text }}</v-chip>
+          <v-list-item v-for="msg in messages" :key="msg.timestamp" :class="msg.me ? 'text-right' : 'text-left'">
+            <v-chip :color="msg.me ? 'primary' : 'secondary'" class="white--text">{{ msg.text }}</v-chip>
           </v-list-item>
         </v-list>
       </v-card-text>
@@ -18,14 +17,15 @@
 </template>
 
 <script setup>
-import { nextTick } from 'vue';
-import { reactive, ref } from 'vue';
+import { ref, nextTick } from 'vue';
+import { useAppStore } from '@/store/app';
+import { storeToRefs } from 'pinia';
 
-const messages = reactive([]);
+const { messages } = storeToRefs(useAppStore());
 const message = ref('');
 
 const send_message = () => {
-  messages.push({ text: message.value, me: true });
+  useAppStore().send_message(message.value);
   message.value = '';
   nextTick(() => {
     const chat_list = document.getElementById('chat-list');

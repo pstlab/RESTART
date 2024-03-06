@@ -20,13 +20,13 @@ namespace restart
 
   private:
     friend void understand(Environment *env, UDFContext *udfc, UDFValue *out);
-    void on_intent(const string_res &res, boost::beast::error_code ec);
+    void on_intent(const string_res &res);
 
     friend void trigger_intent(Environment *env, UDFContext *udfc, UDFValue *out);
-    void on_intent_response(const string_res &res, boost::beast::error_code ec);
+    void on_intent_response(const string_res &res);
 
     friend void compute_response(Environment *env, UDFContext *udfc, UDFValue *out);
-    void on_response(const string_res &res, boost::beast::error_code ec);
+    void on_response(const string_res &res);
 
     friend void say(Environment *env, UDFContext *udfc, UDFValue *out);
 
@@ -82,7 +82,7 @@ namespace restart
     void broadcast(const json::json &msg) { broadcast(msg.to_string()); }
 
   private:
-    network::plain_client language_client;
+    network::client language_client;
     std::unordered_set<network::websocket_session *> sessions;
   };
 } // namespace restart

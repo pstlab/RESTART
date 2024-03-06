@@ -17,8 +17,11 @@ namespace restart
         if (!UDFNextArgument(udfc, STRING_BIT, &message))
             return;
 
-        app.language_client.post("/model/parse", json::json{{"text", message.lexemeValue->contents}}.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
-                                                                                                                                { app.on_intent(res, ec); }});
+        auto res = app.language_client.post<boost::beast::http::string_body>("/model/parse", json::json{{"text", message.lexemeValue->contents}}.to_string());
+        if (res.result() == boost::beast::http::status::ok)
+            app.on_intent(res);
+        else
+            LOG_ERR("Failed to understand: " << res.result_int() << " " << res.reason());
     }
     void trigger_intent(Environment *, UDFContext *udfc, UDFValue *)
     {
@@ -52,8 +55,11 @@ namespace restart
         std::string url = "/conversations/";
         url += user.lexemeValue->contents;
         url += "/trigger_intent";
-        app.language_client.post(url.c_str(), body.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
-                                                                              { app.on_intent_response(res, ec); }});
+        auto res = app.language_client.post<boost::beast::http::string_body>(url.c_str(), body.to_string());
+        if (res.result() == boost::beast::http::status::ok)
+            app.on_intent_response(res);
+        else
+            LOG_ERR("Failed to trigger intent: " << res.result_int() << " " << res.reason());
     }
     void compute_response(Environment *, UDFContext *udfc, UDFValue *)
     {
@@ -67,8 +73,11 @@ namespace restart
         if (!UDFNextArgument(udfc, STRING_BIT, &message))
             return;
 
-        app.language_client.post("/webhooks/rest/webhook", json::json{{"sender", user.lexemeValue->contents}, {"message", message.lexemeValue->contents}}.to_string(), std::function{[&app](const string_res &res, boost::beast::error_code ec)
-                                                                                                                                                                                     { app.on_response(res, ec); }});
+        auto res = app.language_client.post<boost::beast::http::string_body>("/webhooks/rest/webhook", json::json{{"sender", user.lexemeValue->contents}, {"message", message.lexemeValue->contents}}.to_string());
+        if (res.result() == boost::beast::http::status::ok)
+            app.on_response(res);
+        else
+            LOG_ERR("Failed to compute response: " << res.result_int() << " " << res.reason());
     }
     void say(Environment *, UDFContext *udfc, UDFValue *)
     {
@@ -85,8 +94,7 @@ namespace restart
         app.new_message(device.lexemeValue->contents, content.lexemeValue->contents);
     }
 
-    restart_app::restart_app(restart_db &db, const std::string &restart_app_host, const unsigned short restart_app_port) : coco_core(db), coco_listener(static_cast<coco::coco_core &>(*this)), server(restart_app_host, restart_app_port), language_client(RASA_HOST, RASA_PORT, [this]()
-                                                                                                                                                                                                                                                            { LOG("Connected to the language server"); })
+    restart_app::restart_app(restart_db &db, const std::string &restart_app_host, const unsigned short restart_app_port) : coco_core(db), coco_listener(static_cast<coco::coco_core &>(*this)), server(restart_app_host, restart_app_port), language_client(RASA_HOST, RASA_PORT)
     {
         LOG_DEBUG("Creating restart_app..");
 
@@ -117,7 +125,7 @@ namespace restart
                                                                                                              LOG_ERR("Failed to open " << target << ": " << ec.message());
                                                                                                      }});
 
-        add_ws_route("/restart")
+        ws("/restart")
             .on_open(std::bind(&restart_app::on_ws_open, this, std::placeholders::_1))
             .on_message(std::bind(&restart_app::on_ws_message, this, std::placeholders::_1, std::placeholders::_2))
             .on_close(std::bind(&restart_app::on_ws_close, this, std::placeholders::_1))
@@ -127,13 +135,8 @@ namespace restart
         add_route<boost::beast::http::string_body, boost::beast::http::string_body>(boost::beast::http::verb::post, "^/sensor/.+$", std::bind(&restart_app::add_sensor_data, this, std::placeholders::_1, std::placeholders::_2));
     }
 
-    void restart_app::on_intent(const string_res &res, boost::beast::error_code ec)
+    void restart_app::on_intent(const string_res &res)
     {
-        if (ec)
-        {
-            LOG_ERR(ec.message());
-            return;
-        }
         const std::lock_guard<std::recursive_mutex> lock(get_mutex());
         json::json j = json::load(res.body());
         LOG_DEBUG("Intent: " << j);
@@ -163,13 +166,8 @@ namespace restart
         Run(env, -1);
     }
 
-    void restart_app::on_intent_response(const string_res &res, boost::beast::error_code ec)
+    void restart_app::on_intent_response(const string_res &res)
     {
-        if (ec)
-        {
-            LOG_ERR(ec.message());
-            return;
-        }
         const std::lock_guard<std::recursive_mutex> lock(get_mutex());
         auto messages = json::load(res.body())["messages"].get_array();
         for (const auto &action : messages)
@@ -179,13 +177,8 @@ namespace restart
         }
     }
 
-    void restart_app::on_response(const string_res &res, boost::beast::error_code ec)
+    void restart_app::on_response(const string_res &res)
     {
-        if (ec)
-        {
-            LOG_ERR(ec.message());
-            return;
-        }
         const std::lock_guard<std::recursive_mutex> lock(get_mutex());
         auto actions = json::load(res.body()).get_array();
         for (const auto &action : actions)

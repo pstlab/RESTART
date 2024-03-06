@@ -61,11 +61,11 @@ int main(int argc, char **argv)
         }
 
     restart::restart_db db(root, "mongodb://" + mongodb_host + ":" + mongodb_port);
-    if (true)
-        create_test_data(db);
     restart::restart_app app(db, dashboard_host, dashboard_port);
 
     app.load_rules(rules);
+    if (db.get_sensor_types().empty())
+        create_test_data(db);
 
     app.coco_core::start();
     app.server::start();

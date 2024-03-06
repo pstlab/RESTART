@@ -1,5 +1,49 @@
 # Rules
 
+```mermaid
+stateDiagram-v2
+    [*] --> ShowFigs(1)
+    ShowFigs(1) --> Say(intro): 10s
+    Say(intro) --> Note(1): correct
+    Say(intro) --> Repeat(intro): 8s
+    Say(intro) --> Say(intro): asks
+    Repeat(intro) --> Failure: 8s
+    Failure --> [*]
+    Repeat(intro) --> Note(1): correct
+    Repeat(intro) --> Failure: wrong
+    Note(1) --> Say(intro2)
+    state fork_state <<fork>>
+    Say(intro2) --> fork_state
+    fork_state --> ShowFigs(n)
+    fork_state --> StartSay(n)
+    StartSay(n) --> Say(wait): correct
+    StartSay(n) --> Say(wait): wrong
+    Say(wait) --> StartSay(n)
+    StartSay(n) --> EndSay(n): finish
+    EndSay(n) --> Note(R,n): 8s
+    Note(R,n) --> RepeatFigs(n)
+    RepeatFigs(n) --> Note(N,n): 8s
+    RepeatFigs(n) --> Note(n): correct
+    RepeatFigs(n) --> Note(S,n): wrong
+    Note(N,n) --> Next(n)
+    state join_state <<join>>
+    Next(n) --> join_state
+    ShowFigs(n) --> join_state
+    join_state --> fork_state: n < 18
+    join_state --> Success: n = 18
+    Success --> [*]
+    EndSay(n) --> Note(S,n): wrong
+    Note(S,n) --> Note(N,n): 8s
+    Note(S,n) --> Note(S,n): wrong
+    Note(S,n) --> Note(n): correct
+    Note(n) --> Next(n): 5s
+    Note(n) --> Note(S,n): another
+    EndSay(n) --> Note(N,n): talks
+    EndSay(n) --> Say(other): persists
+    Say(other) --> Note(S,n)
+    EndSay(n) --> RepeatFigs(n): distract
+```
+
 This directory contains the rules for the RESTART project. There are two types of rules:
 
 * **Deliberative rules**: These rules are used to plan activities.

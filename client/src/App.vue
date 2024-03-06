@@ -13,6 +13,8 @@
           <SolverListItem v-for="[id, solver] in solvers" :key="id" :solver="solver" />
           <v-list-subheader v-if="sorted_sensors(sensors).size > 0" inset>Sensori</v-list-subheader>
           <SensorListItem v-for="[id, sensor] in sorted_sensors(sensors)" :key="id" :sensor="sensor" />
+          <v-divider />
+          <v-list-item value="reactive-editor" title="Reactive Editor" prepend-icon="mdi-cog" />
         </v-list>
       </v-navigation-drawer>
       <v-navigation-drawer expand-on-hover rail location="right">
@@ -26,6 +28,7 @@
         <Chat />
         <Sensor v-for="[id, sensor] in sorted_sensors(sensors)" :key="id" :sensor="sensor" />
         <Solver v-for="[id, solver] in solvers" :key="id" :solver="solver" />
+        <ReactiveEditor />
       </v-window>
     </v-main>
   </v-app>
@@ -40,6 +43,7 @@ import SensorListItem from './components/SensorListItem.vue';
 import Sensor from './components/Sensor.vue';
 import Solver from './components/Solver.vue';
 import Chat from './components/Chat.vue';
+import ReactiveEditor from './components/ReactiveEditor.vue';
 
 const window_model = ref(['chat']);
 
