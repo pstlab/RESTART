@@ -15,6 +15,12 @@ void create_test_data(restart::restart_db &db)
     env_pars.push_back(std::make_unique<coco::integer_parameter>("pressure", 0, 1000));
     auto env_type_id = db.create_sensor_type("sensor_node", "A sensor that measures some environmental parameters", std::move(env_pars));
 
+    std::vector<coco::parameter_ptr> fotopleto_pars;
+    fotopleto_pars.push_back(std::make_unique<coco::integer_parameter>("heart_rate", 0, 200));
+    fotopleto_pars.push_back(std::make_unique<coco::integer_parameter>("breathing_rate", 0, 100));
+    fotopleto_pars.push_back(std::make_unique<coco::integer_parameter>("blood_oxygen", 0, 100));
+    auto fotopleto_type_id = db.create_sensor_type("fotoplethysmograph", "A sensor that measures some vital parameters", std::move(fotopleto_pars));
+
     std::vector<coco::parameter_ptr> prompt_pars;
     prompt_pars.push_back(std::make_unique<coco::string_parameter>("message"));
     auto prompt_type_id = db.create_sensor_type("prompt", "A sensor that prompts the user for some input", std::move(prompt_pars));
@@ -25,6 +31,7 @@ void create_test_data(restart::restart_db &db)
 
     // we create the sensors..
     auto sn_id = db.create_sensor("env", db.get_sensor_type(env_type_id), std::make_unique<coco::location>(0, 0));
+    auto fotopleto_id = db.create_sensor("fotopleto", db.get_sensor_type(fotopleto_type_id), std::make_unique<coco::location>(0, 0));
     auto prompt_id = db.create_sensor("prompt", db.get_sensor_type(prompt_type_id), std::make_unique<coco::location>(0, 0));
     auto emotion_id = db.create_sensor("emotion", db.get_sensor_type(emotion_type_id), std::make_unique<coco::location>(0, 0));
 }
