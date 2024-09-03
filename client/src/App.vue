@@ -2,7 +2,7 @@
   <coco-app>
     <template #header>
       <router-link to="/">
-        <h1>CoCo</h1>
+        <h1>{{ name }}</h1>
       </router-link>
     </template>
     <template #drawer>
@@ -20,6 +20,7 @@ import { CocoApp, taxonomy, rule, solver, coco } from 'coco-gui';
 import { computed, h, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
+const name = import.meta.env.VITE_NAME as string;
 coco.KnowledgeBase.getInstance().connect();
 
 const active_key = ref<string | null>(null);
