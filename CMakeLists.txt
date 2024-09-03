@@ -8,6 +8,11 @@ enable_testing()
 set(COCO_NAME "RESTART" CACHE STRING "The CoCo Application Name")
 set(ENABLE_API ON CACHE BOOL "CoCo API" FORCE)
 set(ENABLE_TRANSFORMER ON CACHE BOOL "Enable CoCo transformer" FORCE)
+set(CLIENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/client CACHE STRING "Client directory" FORCE)
+
+configure_file(.env.in ${CLIENT_DIR}/.env.local @ONLY)
+execute_process(COMMAND npm install WORKING_DIRECTORY ${CLIENT_DIR})
+execute_process(COMMAND npm run build WORKING_DIRECTORY ${CLIENT_DIR})
 
 add_subdirectory(extern/coco)
 
