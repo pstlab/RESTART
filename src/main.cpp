@@ -1,5 +1,5 @@
-#include "restart_db.h"
-#include "restart_app.h"
+#include "restart_db.hpp"
+#include "restart.hpp"
 
 int main(int argc, char **argv)
 {
