@@ -30,7 +30,8 @@ const menu = computed<MenuOption[]>(() => [
   { key: 'items', label: 'Items', children: items_menu_options(coco.KnowledgeBase.getInstance().items) },
   { key: 'reactive_rules', label: 'Reactive Rules', children: reactive_rules_menu_options(coco.KnowledgeBase.getInstance().reactive_rules) },
   { key: 'deliberative_rules', label: 'Deliberative Rules', children: deliberative_rules_menu_options(coco.KnowledgeBase.getInstance().deliberative_rules) },
-  { key: 'solvers', label: 'Solvers', children: solvers_menu_options(coco.KnowledgeBase.getInstance().solvers) }
+  { key: 'solvers', label: 'Solvers', children: solvers_menu_options(coco.KnowledgeBase.getInstance().solvers) },
+  { key: 'chat', label: 'Chat', children: users_menu_options(coco.KnowledgeBase.getInstance().items) }
 ]);
 
 function types_menu_options(types: Map<string, taxonomy.Type>): MenuOption[] {
@@ -89,6 +90,16 @@ function solvers_menu_options(solvers: Map<number, solver.Solver>): MenuOption[]
       label: () => h(RouterLink, { to: { name: 'solver', params: { id: slv.id } } }, { default: () => slv.name }),
       key: slv.id,
       icon: () => h(icn.value)
+    }
+  });
+}
+
+function users_menu_options(items: Map<string, taxonomy.Item>): MenuOption[] {
+  return Array.from(items.values()).filter(item => item.type.name == 'User').map(item => {
+    return {
+      label: () => h(RouterLink, { to: { name: 'chat', params: { id: item.id } } }, { default: () => item.get_name() }),
+      key: item.id,
+      icon: () => h(Circle20Regular),
     }
   });
 }
