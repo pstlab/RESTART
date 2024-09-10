@@ -1,8 +1,6 @@
-#include "restart_db.h"
+#include "restart_db.hpp"
 
 namespace restart
 {
-  restart_db::restart_db(const std::string &root, const std::string &mongodb_uri) : mongo_db(root, mongodb_uri)
-  {
-  }
+  restart_db::restart_db(const std::string &mongodb_uri) : mongo_db({{"name", COCO_NAME}}, mongodb_uri) {}
 } // namespace restart

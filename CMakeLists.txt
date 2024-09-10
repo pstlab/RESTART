@@ -1,62 +1,22 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(RESTART VERSION 1.0.0)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+cmake_minimum_required(VERSION 3.5.0)
+project(restart VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
 
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
+include(CTest)
+enable_testing()
 
-set(COCO_NAME "RESTART" CACHE STRING "The CoCo Application Name" FORCE)
+set(COCO_NAME "RESTART" CACHE STRING "The CoCo Application Name")
+set(ENABLE_API ON CACHE BOOL "CoCo API" FORCE)
+set(ENABLE_TRANSFORMER ON CACHE BOOL "Enable CoCo transformer" FORCE)
+set(CLIENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/client CACHE STRING "Client directory" FORCE)
 
-set(DASHBOARD_HOST "0.0.0.0" CACHE STRING "The RESTART Dashboard Host")
-set(DASHBOARD_PORT "8080" CACHE STRING "The RESTART Dashboard Port")
-set(RASA_HOST "127.0.0.1" CACHE STRING "The Rasa Host")
-set(RASA_PORT "5005" CACHE STRING "The Rasa Port")
-
-message(STATUS "Dashboard host:         ${DASHBOARD_HOST}")
-message(STATUS "Dashboard port:         ${DASHBOARD_PORT}")
-message(STATUS "Rasa host:              ${RASA_HOST}")
-message(STATUS "Rasa port:              ${RASA_PORT}")
+configure_file(.env.in ${CLIENT_DIR}/.env.local @ONLY)
+execute_process(COMMAND npm install WORKING_DIRECTORY ${CLIENT_DIR})
+execute_process(COMMAND npm run build WORKING_DIRECTORY ${CLIENT_DIR})
 
 add_subdirectory(extern/coco)
-add_subdirectory(extern/rationet)
 
-file(GLOB RESTART_SOURCES src/*.cpp)
-file(GLOB RESTART_HEADERS include/*.h)
-
-add_executable(${PROJECT_NAME} ${RESTART_SOURCES})
-target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
-target_link_libraries(${PROJECT_NAME} PRIVATE COCO ratioNet)
-target_compile_definitions(${PROJECT_NAME} PRIVATE DASHBOARD_HOST="${DASHBOARD_HOST}" DASHBOARD_PORT=${DASHBOARD_PORT} RASA_HOST="${RASA_HOST}" RASA_PORT="${RASA_PORT}")
-
-if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
-endif()
-
-install(
-    TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-install(
-    FILES ${DASHBOARD_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_export.h
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-)
-configure_package_config_file(src/${PROJECT_NAME}Config.cmake.in ${PROJECT_NAME}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} PATH_VARS CMAKE_INSTALL_INCLUDEDIR)
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake VERSION 1.0.0 COMPATIBILITY SameMajorVersion)
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-)
-
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+set(COCO_NAME "restart" CACHE STRING "The CoCo project name")
+add_executable(restart src/main.cpp src/restart.cpp src/restart_db.cpp)
+target_include_directories(restart PRIVATE include)
+target_link_libraries(restart CoCo)
