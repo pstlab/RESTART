@@ -11,12 +11,9 @@ set(ENABLE_TRANSFORMER ON CACHE BOOL "Enable CoCo transformer" FORCE)
 set(CLIENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/client CACHE STRING "Client directory" FORCE)
 
 configure_file(.env.in ${CLIENT_DIR}/.env.local @ONLY)
-execute_process(COMMAND npm install WORKING_DIRECTORY ${CLIENT_DIR})
-execute_process(COMMAND npm run build WORKING_DIRECTORY ${CLIENT_DIR})
 
 add_subdirectory(extern/coco)
 
-set(COCO_NAME "restart" CACHE STRING "The CoCo project name")
 add_executable(restart src/main.cpp src/restart.cpp src/restart_db.cpp)
 target_include_directories(restart PRIVATE include)
 target_link_libraries(restart CoCo)

@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import TypeView from '../views/TypeView.vue'
 import ItemView from '../views/ItemView.vue'
 import SolverView from '../views/SolverView.vue'
+import ChatView from '../views/ChatView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/solver/:id',
       name: 'solver',
       component: SolverView
+    },
+    {
+      path: '/chat/:id',
+      name: 'chat',
+      component: ChatView
     }
   ]
 })

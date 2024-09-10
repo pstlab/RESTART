@@ -11,7 +11,7 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
-    "coco-gui": "^0.3.5",
+    "coco-gui": "^0.3.6",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
