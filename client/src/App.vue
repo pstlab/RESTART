@@ -46,7 +46,7 @@ function types_menu_options(types: Map<string, taxonomy.Type>): MenuOption[] {
 function items_menu_options(items: Map<string, taxonomy.Item>): MenuOption[] {
   return Array.from(items.values()).map(item => {
     return {
-      label: () => h(RouterLink, { to: { name: 'item', params: { id: item.id } } }, { default: () => item.name }),
+      label: () => h(RouterLink, { to: { name: 'item', params: { id: item.id } } }, { default: () => item.get_name() }),
       key: item.id,
       icon: () => h(Circle20Regular),
     }
