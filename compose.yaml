@@ -50,6 +50,7 @@ services:
       args:
         - MONGO_HOST=restart-db
         - RASA_HOST=restart-rasa
+        - LOGGING_LEVEL=DEBUG
 
 networks:
   restart-net:
