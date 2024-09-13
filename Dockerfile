@@ -4,6 +4,12 @@ FROM pstlab/coco_base
 # Expose the API port
 EXPOSE 8080
 
+# Define environment variables
+ARG GITHUB_TOKEN=no_token
+
+# Configure Git to use the GitHub token
+RUN if [ "${GITHUB_TOKEN}" != "no_token" ]; then git config --global credential.helper '!f() { echo "username=oauth2" ; echo "password=${GITHUB_TOKEN}" ; }; f'; fi
+
 # Set the environment variables
 ARG MONGODB_HOST=restart-mongo
 ARG MONGODB_PORT=27017

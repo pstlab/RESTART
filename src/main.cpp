@@ -11,6 +11,20 @@ int main(int argc, char **argv)
     std::string db_host = MONGODB_HOST;
     std::string db_port = MONGODB_PORT;
 
+    auto env_server_host = std::getenv("SERVER_HOST");
+    if (env_server_host)
+        server_host = env_server_host;
+    auto env_server_port = std::getenv("SERVER_PORT");
+    if (env_server_port)
+        server_port = std::stoi(env_server_port);
+
+    auto env_db_host = std::getenv("MONGODB_HOST");
+    if (env_db_host)
+        db_host = env_db_host;
+    auto env_db_port = std::getenv("MONGODB_PORT");
+    if (env_db_port)
+        db_port = env_db_port;
+
     restart::restart server(server_host, server_port, "mongodb://" + db_host + ":" + db_port);
     server.start();
 
