@@ -6,7 +6,7 @@ EXPOSE 8080
 
 # Set the environment variables
 ARG GITHUB_TOKEN=no_token
-ARG MONGODB_HOST=restart-mongo
+ARG MONGODB_HOST=restart-db
 ARG MONGODB_PORT=27017
 ARG CLIENT_FOLDER=extern/client
 ARG LOGGING_LEVEL=TRACE
