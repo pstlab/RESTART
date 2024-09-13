@@ -4,16 +4,15 @@ FROM pstlab/coco_base
 # Expose the API port
 EXPOSE 8080
 
-# Define environment variables
-ARG GITHUB_TOKEN=no_token
-
-# Configure Git to use the GitHub token
-RUN if [ "${GITHUB_TOKEN}" != "no_token" ]; then git config --global credential.helper '!f() { echo "username=oauth2" ; echo "password=${GITHUB_TOKEN}" ; }; f'; fi
-
 # Set the environment variables
+ARG GITHUB_TOKEN=no_token
 ARG MONGODB_HOST=restart-mongo
 ARG MONGODB_PORT=27017
 ARG CLIENT_FOLDER=extern/client
+ARG LOGGING_LEVEL=TRACE
+
+# Configure Git to use the GitHub token
+RUN if [ "${GITHUB_TOKEN}" != "no_token" ]; then git config --global credential.helper '!f() { echo "username=oauth2" ; echo "password=${GITHUB_TOKEN}" ; }; f'; fi
 
 # Install NVM and Node.js
 WORKDIR /home
@@ -27,7 +26,7 @@ RUN git clone --recursive https://github.com/pstlab/RESTART
 
 # Build RESTART Backend
 WORKDIR /home/RESTART
-RUN mkdir build && cd build && cmake .. && make
+RUN mkdir build && cd build && cmake -DLOGGING_LEVEL=${LOGGING_LEVEL} -DMONGODB_HOST=${MONGODB_HOST} -DMONGODB_PORT=${MONGODB_PORT} -DCLIENT_FOLDER=${CLIENT_FOLDER} .. && make
 
 # Build RESTART Frontend
 WORKDIR /home/RESTART/client
