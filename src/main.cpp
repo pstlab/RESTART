@@ -11,8 +11,8 @@ int main(int argc, char **argv)
     std::string db_host = MONGODB_HOST;
     std::string db_port = MONGODB_PORT;
 
-    std::string transformer_host = SERVER_HOST;
-    std::size_t transformer_port = SERVER_PORT;
+    std::string transformer_host = TRANSFORMER_HOST;
+    std::size_t transformer_port = TRANSFORMER_PORT;
 
     auto env_server_host = std::getenv("SERVER_HOST");
     if (env_server_host)
