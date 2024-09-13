@@ -11,6 +11,9 @@ int main(int argc, char **argv)
     std::string db_host = MONGODB_HOST;
     std::string db_port = MONGODB_PORT;
 
+    std::string transformer_host = SERVER_HOST;
+    std::size_t transformer_port = SERVER_PORT;
+
     auto env_server_host = std::getenv("SERVER_HOST");
     if (env_server_host)
         server_host = env_server_host;
@@ -25,7 +28,14 @@ int main(int argc, char **argv)
     if (env_db_port)
         db_port = env_db_port;
 
-    restart::restart server(server_host, server_port, "mongodb://" + db_host + ":" + db_port);
+    auto env_transformer_host = std::getenv("TRANSFORMER_HOST");
+    if (env_transformer_host)
+        transformer_host = env_transformer_host;
+    auto env_transformer_port = std::getenv("TRANSFORMER_PORT");
+    if (env_transformer_port)
+        transformer_port = std::stoi(env_transformer_port);
+
+    restart::restart server(server_host, server_port, "mongodb://" + db_host + ":" + db_port, transformer_host, transformer_port);
     server.start();
 
     return 0;

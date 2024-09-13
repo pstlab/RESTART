@@ -49,7 +49,7 @@ services:
       context: .
       args:
         - MONGO_HOST=restart-db
-        - RASA_HOST=restart-rasa
+        - TRANSFORMER_HOST=restart-rasa
         - LOGGING_LEVEL=DEBUG
 
 networks:

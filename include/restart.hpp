@@ -2,11 +2,11 @@
 
 #include "coco_server.hpp"
 
-namespace restart {
-
-  class restart : public coco::coco_server {
+namespace restart
+{
+  class restart : public coco::coco_server
+  {
   public:
-    restart(const std::string &host = SERVER_HOST, unsigned short port = SERVER_PORT, const std::string &mongodb_uri = "mongodb://" MONGODB_HOST ":" MONGODB_PORT);
-
+    restart(const std::string &host = SERVER_HOST, unsigned short port = SERVER_PORT, const std::string &mongodb_uri = "mongodb://" MONGODB_HOST ":" MONGODB_PORT, const std::string &transformer_host = TRANSFORMER_HOST, unsigned short transformer_port = TRANSFORMER_PORT);
   };
 } // namespace restart

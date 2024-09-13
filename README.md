@@ -37,7 +37,7 @@ docker build -t restart-rasa ./language
 Create the RESTART Docker image by running the following command.
 
 ```bash
-docker build -t restart . --build-arg RASA_HOST=restart-rasa --build-arg MONGO_HOST=restart-mongo
+docker build -t restart . --build-arg TRANSFORMER_HOST=restart-rasa --build-arg MONGO_HOST=restart-mongo
 ```
 
 Run the RESTART MongoDB container by running the following command.
