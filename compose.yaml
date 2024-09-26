@@ -6,30 +6,20 @@ services:
     networks:
       - restart-net
 
-  restart-rasa-duckling:
-    container_name: restart-rasa-duckling
+  restart-duckling:
+    container_name: restart-duckling
     image: rasa/duckling
     restart: always
     networks:
       - restart-net
 
-  restart-rasa-actions:
-    container_name: restart-rasa-actions
-    image: restart-rasa-actions
-    restart: always
-    networks:
-      - restart-net
-    build:
-      context: ./language/actions
-
-  restart-rasa:
-    container_name: restart-rasa
-    image: restart-rasa
+  restart-transformer:
+    container_name: restart-transformer
+    image: restart-transformer
     networks:
       - restart-net
     depends_on:
-      - restart-rasa-actions
-      - restart-rasa-duckling
+      - restart-duckling
     restart: always
     build:
       context: ./language
@@ -38,19 +28,22 @@ services:
     container_name: restart-system
     image: restart-system
     ports:
-      - "8081:8080"
+      - "8080:8080"
     networks:
       - restart-net
     depends_on:
       - restart-db
-      - restart-rasa
+      - restart-transformer
     restart: always
     build:
       context: .
       args:
-        - MONGO_HOST=restart-db
-        - TRANSFORMER_HOST=restart-rasa
+        - MONGODB_HOST=restart-db
+        - TRANSFORMER_HOST=restart-transformer
         - LOGGING_LEVEL=DEBUG
+    environment:
+      - MONGODB_HOST=restart-db
+      - TRANSFORMER_HOST=restart-transformer
 
 networks:
   restart-net:
