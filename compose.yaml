@@ -15,7 +15,7 @@ services:
 
   restart-transformer:
     container_name: restart-transformer
-    image: restart-transformer
+    image: pstlab/restart-transformer
     networks:
       - restart-net
     depends_on:
@@ -24,9 +24,9 @@ services:
     build:
       context: ./language
 
-  restart-system:
-    container_name: restart-system
-    image: restart-system
+  restart:
+    container_name: restart
+    image: pstlab/restart
     ports:
       - "8080:8080"
     networks:
