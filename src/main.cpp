@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         transformer_port = std::stoi(env_transformer_port);
 
     restart::restart server(server_host, server_port, "mongodb://" + db_host + ":" + db_port, transformer_host, transformer_port);
-    server.start();
+    server.server::start();
 
     return 0;
 }
