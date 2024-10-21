@@ -1,6 +1,12 @@
 version: "3.1"
 
 nlu:
+  - intent: set_name
+    examples: |
+      - il mio nome è [Alice](name)
+      - mi chiamo [Bob](name)
+      - sono [Charlie](name)
+
   - intent: greet
     examples: |
       - ciao

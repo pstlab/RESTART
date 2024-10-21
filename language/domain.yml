@@ -1,6 +1,7 @@
 version: "3.1"
 
 intents:
+  - set_name
   - greet
   - goodbye
   - affirm
@@ -9,15 +10,23 @@ intents:
 entities:
   - location
   - number
+  - name
+
+slots:
+  name:
+    type: text
+    mappings:
+     - type: from_entity
+       entity: name
 
 responses:
   utter_greet:
-    - text: "Ciao! Come posso aiutarti?"
-    - text: "Salve! Come posso aiutarti?"
-    - text: "Ciao! Come posso esserti utile?"
-    - text: "Salve! Come posso esserti utile?"
-    - text: "Ciao! Cosa posso fare per te?"
-    - text: "Salve! Cosa posso fare per te?"
+    - text: "Ciao {name}! Come posso aiutarti?"
+    - text: "Salve {name}! Come posso aiutarti?"
+    - text: "Ciao {name}! Come posso esserti utile?"
+    - text: "Salve {name}! Come posso esserti utile?"
+    - text: "Ciao {name}! Cosa posso fare per te?"
+    - text: "Salve {name}! Cosa posso fare per te?"
 
   utter_goodbye:
     - text: "A presto!"
@@ -48,9 +57,13 @@ responses:
     - text: "Non va bene, riprova."
     - text: "Non bene, riprova."
 
-actions:
-  - action_start_listening
-  - action_stop_dialogue
+  utter_start_listening:
+    - custom:
+        open_mic: true
+
+  utter_stop_dialogue:
+    - custom:
+        open_mic: false
 
 session_config:
   session_expiration_time: 6000

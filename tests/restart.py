@@ -7,12 +7,17 @@ def init_db(url):
                                                   'static_properties': {'name': {'type': 'string'},
                                                                         'gender': {'type': 'symbol', 'values': ['M', 'F']}},
                                                    'dynamic_properties': {'me': {'type': 'boolean'},
+                                                                          'open_mic': {'type': 'boolean'},
                                                                           'text': {'type': 'string'}}})
     user_type = response.json()
     print(user_type)
 
     # Create some reactive rules
-    response = requests.post(url + '/reactive_rule', json={'name': 'user_rule', 'content': '(defrule user_rule_true (User_has_me (item_id ?user) (me TRUE) (timestamp ?timestamp)) (User_has_text (item_id ?user) (text ?text) (timestamp ?timestamp)) => (compute_response ?user ?text))'})
+    response = requests.post(url + '/reactive_rule', json={'name': 'user_name', 'content': '(defrule user_name (User_name (item_id ?user) (name ?name)) => (printout t "User: " ?user ", Name: " ?name crlf) (trigger_intent ?user set_name (create$ name) (create$ ?name)))'})
+    user_rule = response.json()
+    print(user_rule)
+
+    response = requests.post(url + '/reactive_rule', json={'name': 'user_dialogue', 'content': '(defrule user_dialogue (User_has_me (item_id ?user) (me TRUE) (timestamp ?timestamp)) (User_has_text (item_id ?user) (text ?text) (timestamp ?timestamp)) => (printout t "User: " ?user ", Text: " ?text ", Timestamp: " ?timestamp crlf) (compute_response ?user ?text))'})
     user_rule = response.json()
     print(user_rule)
 

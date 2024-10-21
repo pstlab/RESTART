@@ -4,7 +4,7 @@ recipe: default.v1
 
 # The assistant project unique identifier
 # This default value must be replaced with a unique assistant name within your deployment
-assistant_id: focaal-assistant
+assistant_id: restart-assistant
 
 # Configuration for Rasa NLU.
 # https://rasa.com/docs/rasa/nlu/components/
@@ -28,7 +28,7 @@ pipeline:
   - name: SpacyEntityExtractor
     dimensions: ["PERSON", "ORG", "GPE", "LOC"]
   - name: DucklingEntityExtractor
-    url: http://restart-rasa-duckling:8000
+    url: http://restart-duckling:8000
     dimensions: ["time", "number", "amount-of-money", "distance", "duration", "email", "url", "phone-number"]
     locale: it_IT
     timezone: Europe/Rome

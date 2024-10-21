@@ -1,14 +1,19 @@
 version: "3.1"
 
 stories:
+  - story: set name path 1
+    steps:
+      - intent: set_name
+      - action: utter_stop_dialogue
+
   - story: greet path 1
     steps:
       - intent: greet
       - action: utter_greet
-      - action: action_start_listening
+      - action: utter_start_listening
 
   - story: goodbye path 1
     steps:
       - intent: goodbye
       - action: utter_goodbye
-      - action: action_stop_dialogue
+      - action: utter_stop_dialogue
