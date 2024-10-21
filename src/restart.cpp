@@ -5,7 +5,7 @@
 
 namespace restart
 {
-  restart::restart(const std::string &host, unsigned short port, const std::string &mongodb_uri, const std::string &transformer_host, unsigned short transformer_port) : coco_server(host, port, std::make_unique<restart_db>(mongodb_uri), transformer_host, transformer_port) {}
+  restart::restart(const std::string &host, unsigned short port, const std::string &mongodb_uri, const std::string &transformer_host, unsigned short transformer_port) : coco_server(host, port, std::make_unique<restart_db>(mongodb_uri), {}, transformer_host, transformer_port) {}
 
 #ifdef ENABLE_AUTH
   void restart::init_routes()
@@ -23,7 +23,7 @@ namespace restart
     add_route(network::Delete, "^/user/.*$", std::bind(&restart::delete_user, this, network::placeholders::request));
 
     add_route(network::Get, "^/types$", std::bind(&restart::get_types, this, network::placeholders::request));
-    add_route(network::Get, "^/type(\\?.*)?$", std::bind(&restart::get_type, this, network::placeholders::request));
+    add_route(network::Get, "^/type(/.*|\\?.*)$", std::bind(&restart::get_type, this, network::placeholders::request));
     add_route(network::Post, "^/type$", std::bind(&restart::create_type, this, network::placeholders::request), {role::admin});
     add_route(network::Put, "^/type/.*$", std::bind(&restart::update_type, this, network::placeholders::request), {role::admin});
     add_route(network::Delete, "^/type/.*$", std::bind(&restart::delete_type, this, network::placeholders::request), {role::admin});
