@@ -1,5 +1,5 @@
 <template>
-  <coco-chat v-if="itm" :item="itm" :key="itm.id" />
+  <coco-chat v-if="itm" :item="itm" lang="it-IT" voice="Microsoft Elsa - Italian (Italy)" :key="itm.id" />
 </template>
 
 <script setup lang="ts">
