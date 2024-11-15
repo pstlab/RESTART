@@ -1,3 +1,4 @@
 [submodule "extern/coco"]
 	path = extern/coco
 	url = https://github.com/ratioSolver/COCO
+	branch = memory
