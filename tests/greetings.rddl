@@ -5,13 +5,15 @@ class Robot: StateVariable {
     }
 
     predicate Greeting (string id) {
-        
         {
-            goal p = new UserState(id:id, cognitive_impairment:"mild");
+            goal p = new UserState(id:id, cognitive_impairment:"L", personality_profile:"extroverted");
             duration >= 10;
         } or {
-            goal p = new UserState(id:id, cognitive_impairment:"none");
+            goal p = new UserState(id:id, cognitive_impairment:"M", personality_profile:"introverted");
             duration >= 15;
+        } or {
+            goal p = new UserState(id:id, cognitive_impairment:"H", personality_profile:"introverted");
+            duration >= 20;
         }
     }
 
@@ -22,6 +24,3 @@ class Robot: StateVariable {
 }
 
 Robot r = new Robot();
-
-
-
