@@ -7,6 +7,18 @@ nlu:
       - mi chiamo [Bob](name)
       - sono [Charlie](name)
 
+  - intent: set_gender
+    examples: |
+      - sono una [F](gender)
+      - sono un [M](gender)
+
+  - intent: set_physical_impairment
+    examples: |
+      - Ho un disturbo fisico
+      - Sono disabile
+      - Non riesco a camminare bene
+      - Sono limitato nei movimenti
+
   - intent: greet
     examples: |
       - ciao
@@ -19,6 +31,36 @@ nlu:
       - ciao bella
       - ciao bello
       - hey
+
+  - intent: provide_status
+    examples: |
+      - Mi sento [benissimo](feeling) oggi, grazie!
+      - Oggi sto proprio [bene](feeling), tutto fila liscio.
+      - Sto [molto bene](feeling), grazie per avermelo chiesto!
+      - Oggi è una bella giornata, mi sento davvero [in forma](feeling)!
+      - Mi sento [fantastico](feeling), tutto va per il meglio.
+      - Sto [benissimo](feeling), è stata una giornata produttiva.
+      - Oggi va alla grande, mi sento [molto bene](feeling)!
+      - Mi sento [in ottima forma](feeling), è una giornata perfetta!
+      - Sto [davvero bene](feeling), grazie mille.
+      - Sono [molto contento](feeling) oggi, tutto sta andando bene.
+      - Sto [abbastanza bene](feeling), grazie.
+      - Non mi posso lamentare, sto [così così](feeling).
+      - Non sto né bene né male, diciamo che sto [abbastanza bene](feeling).
+      - Mi sento un po' [così così](feeling) oggi, niente di speciale.
+      - Sto [non male](feeling), grazie.
+      - Mi sento [abbastanza in forma](feeling), anche se potrebbe andare meglio.
+      - Va tutto [abbastanza bene](feeling), anche se potrei sentirmi meglio.
+      - Oggi [non mi sento in forma](feeling), sono molto stanco.
+      - Mi sento [malissimo](feeling), non è una buona giornata.
+      - Sto [molto male](feeling), ho un sacco di problemi oggi.
+      - Non sto per niente bene, mi sento davvero [male](feeling).
+      - Sto [malissimo](feeling), sono esausto.
+      - Oggi [non mi sento per niente bene](feeling), ho avuto una brutta giornata.
+      - Mi sento [molto male](feeling), tutto sembra andare storto.
+      - Non mi sento [in forma](feeling) per niente, ho mal di testa.
+      - È stata una giornata difficile, mi sento [molto giù](feeling).
+      - Sto [malissimo](feeling) oggi, non riesco a concentrarmi su niente.
 
   - intent: goodbye
     examples: |
@@ -64,3 +106,67 @@ nlu:
       - non lo farò
       - non saprei
       - non ne ho idea
+
+  - synonym: high
+    examples: |
+      - bene
+      - molto bene
+      - benissimo
+      - in forma
+      - fantastico
+      - curioso
+      - curiosa
+      - serena
+      - sereno
+
+
+  - synonym: medium
+    examples: |
+      - abbastanza bene
+      - così così
+      - non male
+      - incerta
+      - incerto
+      
+
+  - synonym: low
+    examples: |
+      - male
+      - molto male
+      - non mi sento in forma
+      - malissimo
+      - frustrato
+      - frustrata
+
+  
+  - intent: confirm
+    examples: |
+      - Grazie, ora mi sento meglio!
+      - Va bene, grazie per la comprensione
+      - Si, spero che la giornata migliori, ne ho bisogno!
+      - Grazie, lo farò!
+      - Grazie, anche io sono molto felice di questo!
+
+  
+  - intent: express_emotion
+    examples: |
+      - Si certo!
+      - Si certo, sono curioso [feeling] di sapere cosa faremo oggi!
+      - Si certo, sono curiosa [feeling] di sapere cosa faremo oggi!
+      - Si!. Mi sento serena [feeling] a riguardo!
+      - Si!. Mi sento sereno [feeling] a riguardo!
+      - Insomma. Sono un pò incerta [feeling] su cosa aspettarmi, ma voglio provarci!
+      - Insomma. Sono un pò incerto [feeling] su cosa aspettarmi, ma voglio provarci!
+      - Non molto. Sono frustrato [feeling] perché non riesco a capire alcuni concetti e ho paura di non riuscire.
+      - Non molto. Sono frustrata [feeling] perché non riesco a capire alcuni concetti e ho paura di non riuscire.
+
+
+  - intent: ask_for_encouragement
+    examples: |
+      - Ho bisogno di una spinta!
+      - Puoi darmi qualche parola di incoraggiamento?
+      - Mi sento un po' giù, ho bisogno di motivazione.
+      - Cosa ne pensi? Devo continuare?
+      - Fammi sapere che posso farcela!
+      - Ho bisogno di un po' di supporto morale.
+      - Dammi una ragione per non arrendermi!

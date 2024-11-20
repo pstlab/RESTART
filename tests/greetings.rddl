@@ -1,0 +1,27 @@
+class Robot: StateVariable {
+
+    predicate UserState (bool physical_impairment, string cognitive_impairment, string personality_profile, string id) {
+        false;
+    }
+
+    predicate Greeting (string id) {
+        
+        {
+            goal p = new UserState(id:id, cognitive_impairment:"mild");
+            duration >= 10;
+        } or {
+            goal p = new UserState(id:id, cognitive_impairment:"none");
+            duration >= 15;
+        }
+    }
+
+    predicate GreetingGoal (string id)
+    {
+        goal g = new Greeting(id:id, end:start);
+    }
+}
+
+Robot r = new Robot();
+
+
+

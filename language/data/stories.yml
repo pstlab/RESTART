@@ -6,11 +6,108 @@ stories:
       - intent: set_name
       - action: utter_stop_dialogue
 
-  - story: greet path 1
+  - story: set gender path 1
+    steps:
+      - intent: set_gender
+      - action: utter_stop_dialogue
+
+  - story: set physical path 1
+    steps:
+      - intent: set_physical_impairment
+      - action: utter_stop_dialogue
+
+
+  - story: greet path maria
     steps:
       - intent: greet
-      - action: utter_greet
+      - slot_was_set:
+        - gender: F
+        - physical_impairment: true
+      - action: utter_greet_maria
       - action: utter_start_listening
+
+
+  - story: greet path alice
+    steps:
+      - intent: greet
+      - slot_was_set:
+        - gender: F
+        - physical_impairment: false
+      - action: utter_greet_alice
+      - action: utter_start_listening
+
+
+
+  - story: greet path maschile
+    steps:
+      - intent: greet
+      - slot_was_set:
+        - gender: M
+        - physical_impairment: false
+      - action: utter_greet_maschile
+      - action: utter_start_listening
+
+
+  - story: Utente si sente di buon umore 
+    steps:
+      - intent: provide_status
+      - slot_was_set:
+        - feeling: high
+      - action: utter_response_high
+      
+
+  
+
+  - story: Utente si sente così così
+    steps:
+       - intent: provide_status
+       - slot_was_set:
+         - feeling: medium
+       - action: utter_response_medium
+      
+
+
+  - story: Utente si sente male
+    steps:
+       - intent: provide_status
+       - slot_was_set:
+         - feeling: low
+       - action: utter_response_low
+
+
+  - story: Introdurre il task
+    steps:
+       - intent: confirm
+       - action: utter_introduce_task
+
+  - story: Apprezzare l'utente felice
+    steps:
+       - intent: express_emotion
+       - slot_was_set:
+         - feeling: high
+       - action: utter_emotion_high
+
+  - story: Incoraggiare un utente che non è molto felice
+    steps:
+       - intent: express_emotion
+       - slot_was_set:
+         - feeling: medium
+       - action: utter_emotion_medium
+
+  - story: Incoraggiare un utente che non è felice
+    steps:
+       - intent: express_emotion
+       - slot_was_set:
+         - feeling: low
+       - action: utter_emotion_low
+
+
+  - story: encourage
+    steps:
+      - intent: ask_for_encouragement
+      - action: utter_encouragement
+      
+      
 
   - story: goodbye path 1
     steps:
