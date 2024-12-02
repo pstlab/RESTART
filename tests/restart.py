@@ -9,7 +9,8 @@ def init_db(url):
                                                                         'gender': {'type': 'symbol', 'values': ['M', 'F']},
                                                                         'cognitive_impairment': {'type': 'symbol', 'values': ['L', 'M', 'H']},
                                                                         'physical_impairment': {'type': 'boolean'},
-                                                                        'personality_profile':{'type': 'symbol', 'values': ['extroverted', 'introverted']}},
+                                                                        'personality_profile':{'type': 'symbol', 'values': ['extroverted', 'introverted']},
+                                                                        'daily_routine': {'type': 'string'}},
                                                                         
                                                    'dynamic_properties': {'me': {'type': 'boolean'},
                                                                           'open_mic': {'type': 'boolean'},
@@ -63,13 +64,13 @@ def init_db(url):
     
 
     # Create some users
-    response = requests.post(url + '/item', json={'type': user_type['id'], 'properties': {'name': 'Alice', 'gender': 'F', 'cognitive_impairment':'L', 'physical_impairment': False, 'personality_profile': 'extroverted'}})
+    response = requests.post(url + '/item', json={'type': user_type['id'], 'properties': {'name': 'Alice', 'gender': 'F', 'cognitive_impairment':'L', 'physical_impairment': False, 'personality_profile': 'extroverted', 'daily_routine': '{fact b_0= new r.Breakfast(start:25200.0, end:26100.0);} or {fact b_0= new r.Breakfast(start:28800.0, end:29700.0);} {fact d_0= new r.Drugs(start:28800.0, end:28800.0);} {fact l_0= new r.Lunch(start:42300.0, end:45000.0);}[50] or {fact l_0= new r.Lunch(start:44550.0, end:48600.0);}[5]'}})
     alice = response.json()
     print(alice)
-    response = requests.post(url + '/item', json={'type': user_type['id'], 'properties': {'name': 'Bob', 'gender': 'M', 'cognitive_impairment':'M', 'physical_impairment': False, 'personality_profile': 'introverted'}})
+    response = requests.post(url + '/item', json={'type': user_type['id'], 'properties': {'name': 'Bob', 'gender': 'M', 'cognitive_impairment':'M', 'physical_impairment': False, 'personality_profile': 'introverted', 'daily_routine': 'fact b_0= new r.Breakfast(start:25200.0, end:26100.0);'}})
     bob = response.json()
     print(bob)
-    response = requests.post(url + '/item', json={'type': user_type['id'], 'properties': {'name': 'Maria', 'gender': 'F','cognitive_impairment':'H', 'physical_impairment': True, 'personality_profile': 'introverted'}})
+    response = requests.post(url + '/item', json={'type': user_type['id'], 'properties': {'name': 'Maria', 'gender': 'F','cognitive_impairment':'H', 'physical_impairment': True, 'personality_profile': 'introverted', 'daily_routine': 'fact b_0= new r.Breakfast(start:25200.0, end:26100.0);'}})
     maria=response.json()
     print(maria)
     
@@ -87,17 +88,37 @@ def init_db(url):
     print(response.status_code)
     
     
-    
+    #REGOLA DELIBERATIVA PER LA CREAZIONE DEL SOLVER
     with open ('greetings.rddl','r') as file:
         data = file.read()
-    response = requests.post(url + '/deliberative_rule', json={'name': 'greetings_del', 'content':data})
+    response = requests.post(url + '/deliberative_rule', json={'name': 'user_well_being_del', 'content':data})
     user_rule = response.json()
     print(user_rule)
+    
+    
+    #REGOLA REATTIVA PER ACQUISIRE LE INFORMAZIONI SULLO STATO DEGLI UTENTI NEL FILE ROBOT.CLP
     with open ('robot.clp','r') as file:
         data = file.read()
     response = requests.post(url + '/reactive_rule', json={'name': 'greetings_react', 'content':data})
     user_rule = response.json()
     print(user_rule)
+    with open ('Greeting.clp','r') as file:
+        data = file.read()
+    response = requests.post(url + '/reactive_rule', json={'name': 'greet_react', 'content':data})
+    user_rule = response.json()
+    print(user_rule)
+    with open ('starting.clp','r') as file:
+        data = file.read()
+    response = requests.post(url + '/reactive_rule', json={'name': 'starting_react', 'content':data})
+    user_rule = response.json()
+    print(user_rule)
+    
+    #REGOLA PER MANDARE IN ESECUZIONE IL PIANIFICATORE
+    response = requests.post(url + '/reactive_rule', json={'name': 'start_execution', 'content':'(defrule start_execution (solver (id ?id)(state idle)) => (start_execution ?id))'})
+    user_rule = response.json()
+    print(user_rule)
+    
+    
     
     
     

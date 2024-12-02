@@ -1,3 +1,4 @@
+
 class Robot: StateVariable {
 
     predicate UserState (bool physical_impairment, string cognitive_impairment, string personality_profile, string id) {
@@ -7,20 +8,72 @@ class Robot: StateVariable {
     predicate Greeting (string id) {
         {
             goal p = new UserState(id:id, cognitive_impairment:"L", personality_profile:"extroverted");
-            duration >= 10;
+            start >= 10.0;
+            start <= 20.0;
+            duration == 30.0;
+            end == start + duration;
+            
+             
+            
+            
+            
         } or {
             goal p = new UserState(id:id, cognitive_impairment:"M", personality_profile:"introverted");
-            duration >= 15;
+            start >= 10.0;
+            start <= 20.0;
+            duration == 35.0;
+            end == start + duration;
+            
+            
         } or {
             goal p = new UserState(id:id, cognitive_impairment:"H", personality_profile:"introverted");
-            duration >= 20;
+            start >= 10.0;
+            start <= 20.0;
+            duration == 40.0;
+            end == start + duration;
+            
         }
     }
 
-    predicate GreetingGoal (string id)
-    {
-        goal g = new Greeting(id:id, end:start);
+    predicate Cognitive_Exercise (string id) {
+        
+        
     }
+    
+
+    predicate User_Well_Being (string id)
+    {
+        goal g = new Greeting(id:id);
+        goal e = new Cognitive_Exercise(id:id); 
+        
+    }
+
+    predicate Lunch ()
+
+    {
+        false;
+        
+    }
+
+    predicate Drugs ()
+    
+    {
+        false;
+        
+    }
+
+    predicate Breakfast ()
+
+    {
+        false;
+        
+    }
+
+
 }
 
+
 Robot r = new Robot();
+
+
+

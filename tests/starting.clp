@@ -1,0 +1,1 @@
+(deffunction starting (?solver_id ?task_type ?pars ?vals) (return TRUE))
