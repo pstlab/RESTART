@@ -2,15 +2,24 @@ version: "3.1"
 
 intents:
   - set_name
+  - set_gender
+  - set_physical_impairment
   - greet
   - goodbye
   - affirm
   - deny
+  - provide_status
+  - confirm
+  - express_emotion
+  - ask_for_encouragement
 
 entities:
   - LOC
   - number
   - name
+  - gender
+  - feeling
+  - physical_impairment
 
 slots:
   name:
@@ -19,14 +28,120 @@ slots:
      - type: from_entity
        entity: name
 
+
+  feeling:
+    type: categorical 
+    values:
+     - high
+     - medium
+     - low
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: feeling
+
+  gender:
+    type: categorical
+    values:
+     - M
+     - F
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: gender
+
+  physical_impairment:
+    type: bool
+    #influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: physical_impairment
+
+
 responses:
-  utter_greet:
-    - text: "Ciao {name}! Come posso aiutarti?"
-    - text: "Salve {name}! Come posso aiutarti?"
-    - text: "Ciao {name}! Come posso esserti utile?"
-    - text: "Salve {name}! Come posso esserti utile?"
-    - text: "Ciao {name}! Cosa posso fare per te?"
-    - text: "Salve {name}! Cosa posso fare per te?"
+  utter_greet_maria:
+    - text: "Ciao {name}, benvenuta! Come stai oggi?"
+    - text: "Salve {name}, benvenuta! Come ti senti oggi?"
+    - text: "Ciao {name}! Benvenuta! Come stai oggi?"
+    - text: "Salve {name}! Mi fa piacere sentirti, bentornata! Come ti senti oggi?"
+    - text: "Ciao {name}! Sono lieto di sentirti, bentornata! Come stai oggi?"
+
+
+  utter_greet_alice:
+    - text: "Ciao {name}, benvenuta! Sei pronta per iniziare?"
+    - text: "Salve {name}, benvenuta! Sei pronta per iniziare un esercizio insieme?"
+    - text: "Ciao {name}! Mi fa piacere sentirti! Sei pronta per cominciare?"
+    
+
+  utter_greet_maschile:
+    - text: "Ciao {name}, benvenuto! Sei pronto per iniziare?"
+    - text: "Salve {name}, benvenuto! Sei pronto per iniziare un esercizio insieme?"
+    - text: "Ciao {name}! Mi fa piacere sentirti! Sei pronto per cominciare?"
+    
+
+  utter_response_high:
+    - text: "Sono felice di sentire che stai bene! 😊"
+    - text: "Fantastico! È bello sapere che ti senti bene."
+    - text: "Ottime notizie! Spero che la tua giornata continui così."
+    - text: "Che bello! Mi fa piacere che tu stia bene. 😄"
+    - text: "Splendido! Continua a goderti la giornata."
+    - text: "È meraviglioso sentirlo! 😊"
+    - text: "Questo mi rende felice! Spero che il tuo buonumore continui."
+    - text: "Che notizia fantastica! 😃"
+
+  utter_response_medium:
+    - text: "Capisco, spero che la tua giornata migliori."
+    - text: "Grazie per aver condiviso. Se posso aiutarti in qualche modo, fammelo sapere."
+    - text: "Mi auguro che il resto della tua giornata vada meglio."
+    - text: "Spero che le cose migliorino presto per te."
+    - text: "Tienimi aggiornato su come va. Sono qui per aiutare."
+    - text: "Se c'è qualcosa che posso fare, non esitare a chiedere."
+    - text: "Spero che il tuo umore migliori col passare della giornata."
+    - text: "Capisco, alcune giornate sono così. Sono qui se hai bisogno."
+
+
+  utter_response_low:
+    - text: "Mi dispiace sentirlo. Vuoi parlarne? 😔"
+    - text: "Sono qui per ascoltarti se ne hai bisogno."
+    - text: "Capisco che possa essere difficile. Come posso aiutarti?"
+    - text: "Mi dispiace che tu ti senta così. Se vuoi, possiamo parlarne."
+    - text: "Se c'è qualcosa che posso fare per aiutarti, per favore dimmelo."
+    - text: "Non esitare a condividere i tuoi pensieri con me."
+    - text: "Mi dispiace molto. Sono qui per te."
+
+  utter_introduce_task:
+    - text: "Oggi faremo un esercizio insieme. Non c'è fretta e puoi chiedermi se hai dei dubbi. Sei pronto ad iniziare?"
+    - text: "Oggi lavoreremo insieme su un esercizio. Non esitare a fermarmi se hai bisogno di chiarimenti. Sei pronto a cominciare?"
+    - text: "Siamo qui per un esercizio oggi. Prenditi il tuo tempo e sentiti libero di chiedere qualsiasi cosa non ti sia chiara. Iniziamo?"
+    - text: "Oggi ci dedicheremo a un esercizio. Non avere paura di interrompermi se qualcosa non ti è chiaro. Sei pronto a iniziare?"
+    - text: "Oggi ci concentreremo su un esercizio. Prenditi il tuo tempo e sentiti libero di chiedere aiuto in qualsiasi momento. Pronto a cominciare?"
+
+
+  utter_emotion_high:
+    - text: "È fantastico! La curiosità è un ottimo punto di partenza. Sono sicuro che sarà un'esperienza interessante!"
+    - text: "È bello sapere che ti senti sereno. La tranquillità può davvero aiutare a concentrarsi meglio!"
+    - text: "È bello sapere che ti senti serena. La tranquillità può davvero aiutare a concentrarsi meglio!"
+    
+
+  utter_emotion_medium:
+    - text: "Capisco la tua incertezza. È normale avere domande quando si affronta qualcosa di nuovo. Posso aiutarti a chiarire i tuoi dubbi!"
+    
+
+  utter_emotion_low:
+    - text: "Mi dispiace che ti senti frustrato. È comprensibile, ma siamo qui per lavorare insieme. Posso aiutarti a capire meglio?"
+    - text: "Mi dispiace che ti senti frustrata. È comprensibile, ma siamo qui per lavorare insieme. Posso aiutarti a capire meglio?"
+
+
+  utter_encouragement:
+    - text: "Hai chiesto alcuni aiuti, ma ricorda, sei più capace di quanto pensi! Continua a provare!"
+    - text: "Non preoccuparti per i tuoi aiuti, tutti hanno bisogno di un po' di supporto. Concentrati e riprova!"
+    - text: "Hai superato i due aiuti, ma ogni grande giocatore ha bisogno di assistenza! Stai facendo del tuo meglio!"
+    - text: "Anche se hai richiesto più aiuti, sei sulla strada giusta! Ogni tentativo è un passo verso il miglioramento."
+    - text: "Sei qui per imparare e migliorare! Non lasciarti scoraggiare, continua così!"
+    - text: "Ogni aiuto che chiedi è un'opportunità per crescere! Non mollare, puoi farcela!"
+    
+
+  
 
   utter_goodbye:
     - text: "A presto!"
