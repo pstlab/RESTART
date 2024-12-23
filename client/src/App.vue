@@ -103,6 +103,5 @@ function users_menu_options(items: Map<string, taxonomy.Item>): MenuOption[] {
   });
 }
 
-coco.KnowledgeBase.getInstance().ssl = import.meta.env.VITE_SSL == 'ON';
-coco.KnowledgeBase.getInstance().connect();
+coco.KnowledgeBase.getInstance().init(import.meta.env.VITE_HOST == '0.0.0.0' ? 'localhost' : import.meta.env.VITE_HOST, import.meta.env.VITE_PORT, import.meta.env.VITE_SSL == 'ON' || import.meta.env.VITE_SSL == 'TRUE', import.meta.env.VITE_AUTH == 'ON' || import.meta.env.VITE_AUTH == 'TRUE');
 </script>
