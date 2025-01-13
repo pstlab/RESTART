@@ -73,3 +73,28 @@ For example, if the command `1` was completed, the robot will publish the follow
 ```bash
 rostopic pub /command_completed std_msgs/String "1"
 ```
+
+## Example
+
+In Python, you can use the following code to send a command to the robot:
+
+```python
+import rospy
+from pepper_speech.msg import ActionMode
+
+rospy.init_node('send_command')
+pub = rospy.Publisher('/nao_command', ActionMode, queue_size=10)
+msg = ActionMode()
+msg.command = '1'
+msg.modality = '1'
+pub.publish(msg)
+```
+
+The robot will publish a completion message on the topic `/command_completed` when the command is completed:
+
+```python
+def callback(data):
+    rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
+
+rospy.Subscriber('/command_completed', String, callback)
+```
