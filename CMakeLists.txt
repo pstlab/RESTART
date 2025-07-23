@@ -10,7 +10,7 @@ set(COCO_NAME "RESTART" CACHE STRING "The CoCo Application Name" FORCE)
 set(BUILD_MONGODB ON CACHE BOOL "Build MongoDB connection" FORCE)
 set(BUILD_COCO_SERVER ON CACHE BOOL "Build the CoCo server" FORCE)
 
-add_executable(RESTART src/main.cpp src/restart_server.cpp)
+add_executable(RESTART src/main.cpp src/restart.cpp src/restart_server.cpp)
 target_compile_features(RESTART PUBLIC cxx_std_17)
 target_include_directories(RESTART PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 if(NOT TARGET CoCo)
