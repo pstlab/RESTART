@@ -12,6 +12,7 @@ namespace restart
 
   private:
     std::unique_ptr<network::response> new_user(const network::request &req);
+    std::unique_ptr<network::response> new_test(const network::request &req);
     std::unique_ptr<network::response> new_exercise(const network::request &req);
 
   private:
