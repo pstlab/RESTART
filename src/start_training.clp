@@ -5,6 +5,16 @@
   (add_data ?robot (create$ current_command) (create$ training))
   (do-for-all-facts ((?domain CognitiveDomain_name)) TRUE
     (printout t "Cognitive Domain: " ?domain:name crlf)
+    (do-for-all-facts ((?ex-done-user ExerciseDone_user) (?ex-done-exercise ExerciseDone_exercise) (?ex-done-done ExerciseDone_done) (?cog-ex-domain CognitiveExercise_domain))
+      (and
+        (eq ?ex-done-user:item_id ?ex-done-exercise:item_id)
+        (eq ?ex-done-user:item_id ?ex-done-done:item_id)
+        (eq ?ex-done-exercise:exercise ?cog-ex-domain:item_id)
+        (eq ?ex-done-user:user ?user)
+        (eq ?cog-ex-domain:domain ?domain:item_id))
+      then
+        (printout t "User '" ?user "' has done exercise '" ?ex-done-user:item_id "' in domain '" ?domain:name "' " ?ex-done-done:done " times" crlf)
+    )
     ; Check if there are any exercises done by the user in the current domain
     (if (not (any-factp ((?ex-done-user ExerciseDone_user) (?ex-done-exercise ExerciseDone_exercise) (?ex-done-done ExerciseDone_done) (?cog-ex-domain CognitiveExercise_domain))
     (and
@@ -24,13 +34,13 @@
                (eq ?test-done-user:user ?user)
                (eq ?test-done-test:test ?cog-test-domain:item_id)
                (eq ?cog-test-domain:domain ?domain:item_id))
-          (printout t "Test " ?test-done-test:item_id " done by user " ?user " with score " ?test-done-score:score crlf)
+          (printout t "User '" ?user "' has done test '" ?test-done-test:item_id "' with score " ?test-done-score:score crlf)
           (if (< ?test-done-score:score ?min-score)
             then
               (bind ?min-score ?test-done-score:score)
           )
         )
-        (printout t "User's score in " ?domain:name " is: " ?min-score crlf)
+        (printout t "User's score in '" ?domain:name "' is: " ?min-score crlf)
         ; Get an exercise type that is available in the domain
         (do-for-fact ((?cog-ex-name CognitiveExercise_name) (?cog-ex-domain CognitiveExercise_domain)) (and (eq ?cog-ex-name:item_id ?cog-ex-domain:item_id) (eq ?cog-ex-domain:domain ?domain:item_id))
           (printout t "Exercise '" ?cog-ex-name:name "' is available in domain '" ?domain:name "'" crlf)
@@ -53,7 +63,7 @@
           )    
         )
       else
-        (printout t "Exercises found in domain " ?domain:name " for user " ?user crlf)      
+        (printout t "User '" ?user "' has already done exercises in domain '" ?domain:name "'" crlf)
     )
   )
   ; Execute the first available exercise

@@ -52,7 +52,7 @@ namespace restart
 
             [[maybe_unused]] auto &usr_type = cc.create_type("User", {}, json::json{{"name", {"type", "string"}}}, json::json());
             [[maybe_unused]] auto &t_done_type = cc.create_type("TestDone", {}, json::json{{"user", {{"type", "item"}, {"domain", "User"}}}, {"test", {{"type", "item"}, {"domain", "CognitiveTest"}}}, {"score", {{"type", "int"}, {"min", 0}, {"max", 6}}}}, json::json());
-            [[maybe_unused]] auto &ex_done_type = cc.create_type("ExerciseDone", {}, json::json{{"user", {{"type", "item"}, {"domain", "User"}}}, {"exercise", {{"type", "item"}, {"domain", "CognitiveExercise"}}}, {"level", {{"type", "int"}, {"min", 0}, {"max", 6}}}, {"done", {{"type", "int"}, {"min", 0}, {"default", 0}}}, {"score", {{"type", "float"}, {"min", 0}, {"max", 1}}}}, json::json());
+            [[maybe_unused]] auto &ex_done_type = cc.create_type("ExerciseDone", {}, json::json{{"user", {{"type", "item"}, {"domain", "User"}}}, {"exercise", {{"type", "item"}, {"domain", "CognitiveExercise"}}}, {"done", {{"type", "int"}, {"min", 0}, {"default", 0}}}, {"level", {{"type", "int"}, {"min", 0}, {"max", 6}}}, {"score", {{"type", "float"}, {"min", 0}, {"max", 1}}}}, json::json());
 
             auto &robot_type = cc.create_type("Robot", {}, json::json{{"name", {"type", "string"}}}, json::json{{"current_command", {{"type", "symbol"}, {"values", {"welcome", "rot", "training", "goodbye"}}}}, {"current_modality", {{"type", "symbol"}, {"values", std::vector<json::json>{"formal", "informal"}}}}, {"command_completed", {{"type", "symbol"}, {"values", {"welcome", "rot", "training", "goodbye"}}}}, {"current_user", {{"type", "item"}, {"domain", "User"}}}, {"current_exercise", {{"type", "item"}, {"domain", "CognitiveExercise"}}}, {"current_level", {{"type", "int"}, {"min", 0}, {"max", 10}}}, {"current_score", {{"type", "float"}, {"min", 0}, {"max", 1}}}});
             [[maybe_unused]] auto &robot = cc.create_item(robot_type, json::json{{"name", "RESTART"}});
@@ -106,7 +106,7 @@ namespace restart
         }
         for (const auto &ce : get_coco().get_items(ex_type))
             [[maybe_unused]]
-            auto &ex_done = get_coco().create_item(ex_done_type, json::json{{"user", usr.get_id()}, {"exercise", ce.get().get_id()}});
+            auto &ex_done = get_coco().create_item(ex_done_type, json::json{{"user", usr.get_id()}, {"exercise", ce.get().get_id()}, {"done", 0}, {"level", 0}, {"score", 0.0}});
 
         users.emplace(usr.get_id(), std::make_unique<user>(usr.get_id(), name, std::move(tests)));
 
