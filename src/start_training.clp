@@ -1,4 +1,4 @@
-(defrule robot_training
+(defrule start_training
   (Robot_has_command_completed (item_id ?robot) (command_completed rot))
   (Robot_has_current_user (item_id ?robot) (current_user ?user))  
 =>
@@ -55,5 +55,10 @@
       else
         (printout t "Exercises found in domain " ?domain:name " for user " ?user crlf)      
     )
+  )
+  ; Execute the first available exercise
+  (do-for-fact ((?ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?ex:id)))
+    (printout t "Executing exercise: " ?ex:type " - " ?ex:level crlf)
+    (add_data ?robot (create$ current_exercise current_level) (create$ ?ex:type ?ex:level))
   )
 )

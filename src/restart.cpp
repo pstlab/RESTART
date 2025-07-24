@@ -52,18 +52,24 @@ namespace restart
 
             [[maybe_unused]] auto &usr_type = cc.create_type("User", {}, json::json{{"name", {"type", "string"}}}, json::json());
             [[maybe_unused]] auto &t_done_type = cc.create_type("TestDone", {}, json::json{{"user", {{"type", "item"}, {"domain", "User"}}}, {"test", {{"type", "item"}, {"domain", "CognitiveTest"}}}, {"score", {{"type", "int"}, {"min", 0}, {"max", 6}}}}, json::json());
-            [[maybe_unused]] auto &ex_done_type = cc.create_type("ExerciseDone", {}, json::json{{"user", {{"type", "item"}, {"domain", "User"}}}, {"exercise", {{"type", "item"}, {"domain", "CognitiveExercise"}}}, {"level", {{"type", "int"}, {"min", 0}, {"max", 6}}}, {"done", {{"type", "int"}, {"min", 0}, {"default", 0}}}, {"performance", {{"type", "float"}, {"min", 0}, {"max", 1}}}}, json::json());
+            [[maybe_unused]] auto &ex_done_type = cc.create_type("ExerciseDone", {}, json::json{{"user", {{"type", "item"}, {"domain", "User"}}}, {"exercise", {{"type", "item"}, {"domain", "CognitiveExercise"}}}, {"level", {{"type", "int"}, {"min", 0}, {"max", 6}}}, {"done", {{"type", "int"}, {"min", 0}, {"default", 0}}}, {"score", {{"type", "float"}, {"min", 0}, {"max", 1}}}}, json::json());
 
-            auto &robot_type = cc.create_type("Robot", {}, json::json{{"name", {"type", "string"}}}, json::json{{"current_command", {{"type", "symbol"}, {"values", {"welcome", "rot", "training", "goodbye"}}}}, {"current_modality", {{"type", "symbol"}, {"values", std::vector<json::json>{"formal", "informal"}}}}, {"command_completed", {{"type", "symbol"}, {"values", {"welcome", "rot", "training", "goodbye"}}}}, {"current_user", {{"type", "item"}, {"domain", "User"}}}, {"current_exercise", {{"type", "item"}, {"domain", "CognitiveExercise"}}}, {"current_performance", {{"type", "float"}, {"min", 0}, {"max", 1}}}});
+            auto &robot_type = cc.create_type("Robot", {}, json::json{{"name", {"type", "string"}}}, json::json{{"current_command", {{"type", "symbol"}, {"values", {"welcome", "rot", "training", "goodbye"}}}}, {"current_modality", {{"type", "symbol"}, {"values", std::vector<json::json>{"formal", "informal"}}}}, {"command_completed", {{"type", "symbol"}, {"values", {"welcome", "rot", "training", "goodbye"}}}}, {"current_user", {{"type", "item"}, {"domain", "User"}}}, {"current_exercise", {{"type", "item"}, {"domain", "CognitiveExercise"}}}, {"current_level", {{"type", "int"}, {"min", 0}, {"max", 10}}}, {"current_score", {{"type", "float"}, {"min", 0}, {"max", 1}}}});
             [[maybe_unused]] auto &robot = cc.create_item(robot_type, json::json{{"name", "RESTART"}});
 
             cc.create_reactive_rule("robot_session", start_session_rule);
             cc.create_reactive_rule("robot_rot", start_rot_rule);
             {
-                std::ifstream file("src/robot_training.clp");
+                std::ifstream file("src/start_training.clp");
                 std::stringstream buffer;
                 buffer << file.rdbuf();
-                cc.create_reactive_rule("robot_training", buffer.str());
+                cc.create_reactive_rule("start_training", buffer.str());
+            }
+            {
+                std::ifstream file("src/exercise_done.clp");
+                std::stringstream buffer;
+                buffer << file.rdbuf();
+                cc.create_reactive_rule("exercise_done", buffer.str());
             }
 
             create_user("TestUser", json::json{{"MoCA", 2}, {"AttentionMatrices", 1}, {"TrialMakingTestA", 4}, {"TrialMakingTestB", 3}, {"TrialMakingTestBA", 0}, {"SemanticFluency", 2}, {"PhonologicalFluency", 4}, {"ModifiedWisconsinCardSortingTest", 1}, {"ShortStory", 3}});

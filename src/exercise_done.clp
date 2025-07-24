@@ -1,0 +1,32 @@
+(defrule exercise_done
+  (Robot_has_current_exercise (item_id ?robot) (current_exercise ?exercise))
+  (Robot_has_current_level (item_id ?robot) (current_level ?level))
+  (Robot_has_current_score (item_id ?robot) (current_score ?score))
+  (Robot_has_current_user (item_id ?robot) (current_user ?user))
+=>
+  (printout t "Exercise '" ?exercise "' at level " ?level " completed with score " ?score " by user '" ?user "'" crlf)
+  (do-for-fact ((?ex-done-user ExerciseDone_user) (?ex-done-exercise ExerciseDone_exercise) (?ex-done-level ExerciseDone_level) (?ex-done-score ExerciseDone_score) (?ex-done-done ExerciseDone_done))
+    (and
+        (eq ?ex-done-user:item_id ?ex-done-exercise:item_id)
+        (eq ?ex-done-user:item_id ?ex-done-level:item_id)
+        (eq ?ex-done-user:item_id ?ex-done-score:item_id)
+        (eq ?ex-done-user:item_id ?ex-done-done:item_id)
+        (eq ?ex-done-user:user ?user)
+        (eq ?ex-done-exercise:item_id ?exercise))
+    (set_properties ?ex-done-level:item_id (create$ level) (create$ ?level))
+    (set_properties ?ex-done-score:item_id (create$ score) (create$ ?score))
+    (bind ?done (+ ?ex-done-done:done 1))
+    (set_properties ?ex-done-done:item_id (create$ done) (create$ ?done))
+  )
+  (do-for-fact ((?ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?ex:id)))
+    (retract ?ex)
+  )
+  (if (any-factp ((?ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?ex:id))))
+    then
+      (printout t "Executing exercise " ?ex:type " at level " ?ex:level crlf)
+      (add_data ?robot (create$ current_exercise current_level) (create$ ?ex:type ?ex:level))
+    else
+      (printout t "All exercises completed for user '" ?user "'" crlf)
+      (add_data ?robot (create$ current_command) (create$ goodbye))
+  )
+)
