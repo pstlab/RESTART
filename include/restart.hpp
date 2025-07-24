@@ -8,6 +8,9 @@ namespace restart
 {
   constexpr const char *next_id_defglobal = "(defglobal ?*next-id* = 1)";
   constexpr const char *exercise_deftemplate = "(deftemplate exercise (slot id) (slot exercise-type (type SYMBOL)) (slot exercise-level (type INTEGER) (range 0 6)))";
+  constexpr const char *enqueue_exercise_deffunction = "(deffunction enqueue-exercise (?type ?level) (bind ?id ?*next-id*) (bind ?*next-id* (+ ?*next-id* 1)) (assert (exercise (id ?id) (exercise-type ?type) (exercise-level ?level))))";
+  constexpr const char *start_session_rule = "(defrule robot_session (Robot_has_current_user (item_id ?robot) (current_user ?user)) => (add_data ?robot (create$ current_command current_modality) (create$ welcome formal)))";
+  constexpr const char *start_rot_rule = "(defrule robot_rot (Robot_has_command_completed (item_id ?robot) (command_completed welcome)) => (add_data ?robot (create$ current_command) (create$ rot)))";
 
   class user;
 
