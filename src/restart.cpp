@@ -71,6 +71,7 @@ namespace restart
                 buffer << file.rdbuf();
                 cc.create_reactive_rule("exercise_done", buffer.str());
             }
+            cc.create_reactive_rule("robot_end_session", end_session_rule);
 
             create_user("TestUser", json::json{{"MoCA", 2}, {"AttentionMatrices", 1}, {"TrialMakingTestA", 4}, {"TrialMakingTestB", 3}, {"TrialMakingTestBA", 0}, {"SemanticFluency", 2}, {"PhonologicalFluency", 4}, {"ModifiedWisconsinCardSortingTest", 1}, {"ShortStory", 3}});
         }

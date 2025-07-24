@@ -58,7 +58,7 @@
   )
   ; Execute the first available exercise
   (do-for-fact ((?ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?ex:id)))
-    (printout t "Executing exercise: " ?ex:type " - " ?ex:level crlf)
+    (printout t "Executing exercise " ?ex:type " at level " ?ex:level crlf)
     (add_data ?robot (create$ current_exercise current_level) (create$ ?ex:type ?ex:level))
   )
 )

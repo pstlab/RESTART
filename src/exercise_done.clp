@@ -21,10 +21,13 @@
   (do-for-fact ((?ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?ex:id)))
     (retract ?ex)
   )
-  (if (any-factp ((?ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?ex:id))))
+  (facts)
+  (if (any-factp ((?next-ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?next-ex:id))))
     then
-      (printout t "Executing exercise " ?ex:type " at level " ?ex:level crlf)
-      (add_data ?robot (create$ current_exercise current_level) (create$ ?ex:type ?ex:level))
+      (do-for-fact ((?next-ex exercise)) (not (any-factp ((?ex2 exercise)) (< ?ex2:id ?next-ex:id)))
+        (printout t "Executing exercise " ?next-ex:type " at level " ?next-ex:level crlf)
+        (add_data ?robot (create$ current_exercise current_level current_score) (create$ ?next-ex:type ?next-ex:level nil))
+      )
     else
       (printout t "All exercises completed for user '" ?user "'" crlf)
       (add_data ?robot (create$ current_command) (create$ goodbye))

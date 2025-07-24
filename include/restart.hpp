@@ -11,6 +11,7 @@ namespace restart
   constexpr const char *enqueue_exercise_deffunction = "(deffunction enqueue-exercise (?type ?level) (bind ?id ?*next-id*) (bind ?*next-id* (+ ?*next-id* 1)) (assert (exercise (id ?id) (type ?type) (level ?level))))";
   constexpr const char *start_session_rule = "(defrule robot_session (Robot_has_current_user (item_id ?robot) (current_user ?user)) => (add_data ?robot (create$ current_command current_modality) (create$ welcome formal)))";
   constexpr const char *start_rot_rule = "(defrule robot_rot (Robot_has_command_completed (item_id ?robot) (command_completed welcome)) => (add_data ?robot (create$ current_command) (create$ rot)))";
+  constexpr const char *end_session_rule = "(defrule robot_end_session (Robot_has_command_completed (item_id ?robot) (command_completed goodbye)) => (add_data ?robot (create$ command_completed current_command current_exercise current_level current_score current_user) (create$ nil nil nil nil nil nil)))";
 
   class user;
 
