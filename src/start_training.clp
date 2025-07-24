@@ -64,6 +64,50 @@
         )
       else
         (printout t "User '" ?user "' has already done exercises in domain '" ?domain:name "'" crlf)
+        ; Select the least done exercise in the domain
+        (bind ?min-done 100000)     ; Initialize with high value
+        (bind ?next-cog-ex nil)     ; Initialize with nil
+        (bind ?next-cog-ex-level 0) ; Initialize with 0
+        (bind ?last-ex-score 0)     ; Initialize with 0
+        ; Iterate over all exercises done by the user in the domain
+        (do-for-all-facts ((?ex-done-user ExerciseDone_user) (?ex-done-exercise ExerciseDone_exercise) (?ex-done-done ExerciseDone_done) (?ex-done-level ExerciseDone_level) (?ex-done-score ExerciseDone_score) (?cog-ex-domain CognitiveExercise_domain))
+          (and
+            (eq ?ex-done-user:item_id ?ex-done-exercise:item_id)
+            (eq ?ex-done-user:item_id ?ex-done-done:item_id)
+            (eq ?ex-done-user:item_id ?ex-done-level:item_id)
+            (eq ?ex-done-user:item_id ?ex-done-score:item_id)
+            (eq ?ex-done-user:user ?user)
+            (eq ?ex-done-exercise:exercise ?cog-ex-domain:item_id)
+            (eq ?cog-ex-domain:domain ?domain:item_id))
+          (printout t "User '" ?user "' has done exercise '" ?ex-done-exercise:exercise "' at level " ?ex-done-level:level " with score " ?ex-done-score:score " " ?ex-done-done:done " times" crlf)
+          (if (< ?ex-done-done:done ?min-done)
+            then
+              (bind ?min-done ?ex-done-done:done)
+              (bind ?next-cog-ex ?ex-done-exercise:exercise)
+              (bind ?next-cog-ex-level ?ex-done-level:level)
+              (bind ?last-ex-score ?ex-done-score:score)
+          )
+        )
+        (if (neq ?next-cog-ex nil)
+          then
+            (printout t "User '" ?user "' has done exercise '" ?next-cog-ex "' at level " ?next-cog-ex-level " the least number of times: " ?min-done crlf)
+            (if (< ?last-ex-score 0.3)
+                then
+                (enqueue-exercise ?next-cog-ex (min (- ?next-cog-ex-level 1) 1))
+                (enqueue-exercise ?next-cog-ex (min (- ?next-cog-ex-level 1) 1))
+            else
+              (if (< ?last-ex-score 0.6)
+                then
+                (enqueue-exercise ?next-cog-ex ?next-cog-ex-level)
+                (enqueue-exercise ?next-cog-ex ?next-cog-ex-level)
+              else
+                (enqueue-exercise ?next-cog-ex (min (+ ?next-cog-ex-level 1) 6))
+                (enqueue-exercise ?next-cog-ex (min (+ ?next-cog-ex-level 1) 6))
+              )
+            )
+          else
+            (printout t "No exercises found for user '" ?user "' in domain '" ?domain:name "'" crlf)
+        )
     )
   )
   ; Execute the first available exercise
