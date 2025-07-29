@@ -121,12 +121,12 @@ namespace restart
     std::unique_ptr<network::response> restart_server::new_user(const network::request &req)
     {
         auto &body = static_cast<const network::json_request &>(req).get_body();
-        if (!body.is_object() || !body.contains("name") || !body["name"].is_string())
+        if (!body.is_object() || !body.contains("name") || !body["name"].is_string() || !body.contains("tests") || !body["tests"].is_object())
             return std::make_unique<network::json_response>(json::json({{"message", "Invalid request"}}), network::status_code::bad_request);
 
         std::string name = body["name"];
         json::json tests;
-        for (const auto &[test_name, test_score] : body.as_object())
+        for (const auto &[test_name, test_score] : body["tests"].as_object())
             if (test_name != "name")
                 tests[test_name] = test_score.get<int>();
         try
