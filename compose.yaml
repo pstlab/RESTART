@@ -1,49 +1,28 @@
 services:
-  restart-db:
+  restart-db: # Database service
     container_name: restart-db
     image: mongo
-    restart: always
     networks:
       - restart-net
-
-  restart-duckling:
-    container_name: restart-duckling
-    image: rasa/duckling
-    restart: always
-    networks:
-      - restart-net
-
-  restart-transformer:
-    container_name: restart-transformer
-    image: pstlab/restart-transformer
-    networks:
-      - restart-net
-    depends_on:
-      - restart-duckling
-    restart: always
-    build:
-      context: ./language
-
-  restart:
-    container_name: restart
-    image: pstlab/restart
     ports:
-      - "8080:8080"
-    networks:
-      - restart-net
+      - "27017:27017"
+    restart: unless-stopped
+
+  restart-coco: # CoCo service
     depends_on:
       - restart-db
-      - restart-transformer
-    restart: always
+    container_name: restart-coco
+    image: restart-coco
+    networks:
+      - restart-net
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
     build:
       context: .
       args:
         - MONGODB_HOST=restart-db
-        - TRANSFORMER_HOST=restart-transformer
-        - LOGGING_LEVEL=DEBUG
-    environment:
-      - MONGODB_HOST=restart-db
-      - TRANSFORMER_HOST=restart-transformer
+        - MONGODB_USERS_HOST=restart-db
 
 networks:
   restart-net:

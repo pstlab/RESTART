@@ -9,8 +9,6 @@ option(INTERACTIVE_TEST "Enable interactive test mode" OFF)
 set(COCO_NAME "RESTART" CACHE STRING "The CoCo Application Name" FORCE)
 set(BUILD_MONGODB ON CACHE BOOL "Build MongoDB connection" FORCE)
 set(BUILD_COCO_SERVER ON CACHE BOOL "Build the CoCo server" FORCE)
-set(BUILD_WEB_APP ON CACHE BOOL "Build the CoCo web application" FORCE)
-set(CLIENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/gui CACHE PATH "The CoCo client directory" FORCE)
 
 add_executable(RESTART src/main.cpp src/restart.cpp src/restart_server.cpp)
 target_compile_features(RESTART PUBLIC cxx_std_17)
