@@ -1,6 +1,6 @@
 #include "restart.hpp"
 #include "coco.hpp"
-#include "coco_item.hpp"
+#include "coco_type.hpp"
 #include "logging.hpp"
 #include <fstream>
 #include <sstream>
@@ -88,8 +88,7 @@ namespace restart
     std::string restart::create_domain(std::string_view name, bool infere)
     {
         std::lock_guard<std::recursive_mutex> lock(get_mtx());
-        auto &cd_type = get_coco().get_type("CognitiveDomain");
-        auto &cd = get_coco().create_item(cd_type, json::json{{"name", name.data()}});
+        auto &cd = get_coco().create_item(get_coco().get_type("CognitiveDomain"), json::json{{"name", name.data()}});
 
         if (infere)
             Run(get_env(), -1);
@@ -155,20 +154,13 @@ namespace restart
         std::lock_guard<std::recursive_mutex> lock(get_mtx());
         std::vector<test> tests;
         for (auto &ct : get_coco().get_items(get_coco().get_type("CognitiveTest")))
-            tests.emplace_back(ct.get().get_id(), ct.get().get_properties()["name"].get<std::string>(), ct.get().get_properties()["domain"].get<std::string>());
+            tests.emplace_back(ct.get().get_id(), ct.get().get_properties()["name"].get<std::string>(), get_coco().get_item(ct.get().get_properties()["domain"].get<std::string>()).get_id());
         return tests;
     }
     std::string restart::create_test(std::string_view name, std::string_view domain, bool infere)
     {
         std::lock_guard<std::recursive_mutex> lock(get_mtx());
-        auto &ct_type = get_coco().get_type("CognitiveTest");
-        std::string query = "(find-fact ((?cd CognitiveDomain)) (eq ?cd:name \"" + std::string(domain) + "\"))";
-        CLIPSValue cd_fact;
-        Eval(get_env(), query.c_str(), &cd_fact);
-        if (cd_fact.value == nullptr)
-            throw std::invalid_argument("Cognitive domain not found: " + std::string(domain));
-        auto &cd_itm = get_coco().get_item(cd_fact.lexemeValue->contents);
-        auto &test = get_coco().create_item(ct_type, json::json{{"name", name.data()}, {"domain", cd_itm.get_id()}});
+        auto &test = get_coco().create_item(get_coco().get_type("CognitiveTest"), json::json{{"name", name.data()}, {"domain", get_domain(domain).get_id()}});
 
         if (infere)
             Run(get_env(), -1);
@@ -181,25 +173,48 @@ namespace restart
         std::lock_guard<std::recursive_mutex> lock(get_mtx());
         std::vector<exercise> exercises;
         for (auto &ce : get_coco().get_items(get_coco().get_type("CognitiveExercise")))
-            exercises.emplace_back(ce.get().get_id(), ce.get().get_properties()["name"].get<std::string>(), ce.get().get_properties()["domain"].get<std::string>(), ce.get().get_properties()["duration"].get<int64_t>());
+            exercises.emplace_back(ce.get().get_id(), ce.get().get_properties()["name"].get<std::string>(), get_coco().get_item(ce.get().get_properties()["domain"].get<std::string>()).get_id(), ce.get().get_properties()["duration"].get<int64_t>());
         return exercises;
     }
     std::string restart::create_exercise(std::string_view name, std::string_view domain, int duration, bool infere)
     {
         std::lock_guard<std::recursive_mutex> lock(get_mtx());
-        auto &ce_type = get_coco().get_type("CognitiveExercise");
-        std::string query = "(find-fact ((?cd CognitiveDomain)) (eq ?cd:name \"" + std::string(domain) + "\"))";
-        CLIPSValue cd_fact;
-        Eval(get_env(), query.c_str(), &cd_fact);
-        if (cd_fact.value == nullptr)
-            throw std::invalid_argument("Cognitive domain not found: " + std::string(domain));
-        auto &cd_itm = get_coco().get_item(cd_fact.lexemeValue->contents);
-        auto &exercise = get_coco().create_item(ce_type, json::json{{"name", name.data()}, {"domain", cd_itm.get_id()}, {"duration", duration}});
+        auto &exercise = get_coco().create_item(get_coco().get_type("CognitiveExercise"), json::json{{"name", name.data()}, {"domain", get_domain(domain).get_id()}, {"duration", duration}});
 
         if (infere)
             Run(get_env(), -1);
 
         return exercise.get_id();
+    }
+
+    coco::item &restart::get_domain(std::string_view domain)
+    {
+        std::string query = "(find-fact ((?cd CognitiveDomain_name)) (eq ?cd:name \"" + std::string(domain) + "\"))";
+        CLIPSValue cd_fact;
+        Eval(get_env(), query.c_str(), &cd_fact);
+        Fact *f;
+        switch (cd_fact.header->type)
+        {
+        case SYMBOL_TYPE:
+            if (strcmp(cd_fact.lexemeValue->contents, "FALSE") == 0)
+                throw std::invalid_argument("Cognitive domain not found: " + std::string(domain));
+            break;
+        case FACT_ADDRESS_TYPE:
+            f = cd_fact.factValue;
+            break;
+        case MULTIFIELD_TYPE:
+            if (cd_fact.multifieldValue->length == 0)
+                throw std::invalid_argument("Cognitive domain not found: " + std::string(domain));
+            f = cd_fact.multifieldValue->contents[0].factValue;
+            break;
+        default:
+            throw std::invalid_argument("Unexpected result type from find-fact for domain: " + std::string(domain));
+        }
+        CLIPSValue cd_id;
+        GetFactSlot(f, "item_id", &cd_id);
+        auto &cd_itm = get_coco().get_item(cd_id.lexemeValue->contents);
+        assert(cd_itm.get_type().get_name() == "CognitiveDomain");
+        return cd_itm;
     }
 
     domain::domain(std::string_view id, std::string_view name) noexcept : id(id), name(name) {}

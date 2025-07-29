@@ -1,6 +1,7 @@
 #pragma once
 
 #include "coco_module.hpp"
+#include "coco_item.hpp"
 #include <functional>
 #include <memory>
 
@@ -34,6 +35,9 @@ namespace restart
 
     [[nodiscard]] std::vector<exercise> get_exercises() noexcept;
     std::string create_exercise(std::string_view name, std::string_view domain, int duration, bool infere = true);
+
+  private:
+    coco::item &get_domain(std::string_view domain);
   };
 
   class domain final
