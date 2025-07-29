@@ -5,7 +5,6 @@
   (Robot_has_current_user (item_id ?robot) (current_user ?user))
 =>
   (printout t "User '" ?user "' has completed exercise '" ?exercise "' at level " ?level " with score " ?score crlf)
-  (facts)
   (do-for-fact ((?ex-done-user ExerciseDone_user) (?ex-done-exercise ExerciseDone_exercise) (?ex-done-done ExerciseDone_done) (?ex-done-level ExerciseDone_level) (?ex-done-score ExerciseDone_score))
     (and
         (eq ?ex-done-user:item_id ?ex-done-exercise:item_id)
