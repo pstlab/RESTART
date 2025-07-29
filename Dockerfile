@@ -48,6 +48,7 @@ RUN npm --prefix /RESTART/gui install && npm --prefix /RESTART/gui run build
 
 # Move the built COCO files to the /app directory
 RUN mv /RESTART/build/RESTART /restart \
+    && mv /RESTART/rules /rules \
     && mkdir -p /gui && mv /RESTART/gui/dist /gui \
     && rm -rf /RESTART
 

@@ -40,13 +40,13 @@ int main()
         cc.create_reactive_rule("robot_session", restart::start_session_rule);
         cc.create_reactive_rule("robot_rot", restart::start_rot_rule);
         {
-            std::ifstream file("src/start_training.clp");
+            std::ifstream file("rules/start_training.clp");
             std::stringstream buffer;
             buffer << file.rdbuf();
             cc.create_reactive_rule("start_training", buffer.str());
         }
         {
-            std::ifstream file("src/exercise_done.clp");
+            std::ifstream file("rules/exercise_done.clp");
             std::stringstream buffer;
             buffer << file.rdbuf();
             cc.create_reactive_rule("exercise_done", buffer.str());
