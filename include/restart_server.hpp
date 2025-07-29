@@ -11,8 +11,13 @@ namespace restart
     restart_server(coco::coco_server &srv, restart &rst) noexcept;
 
   private:
+    std::unique_ptr<network::response> get_users(const network::request &req);
     std::unique_ptr<network::response> new_user(const network::request &req);
+
+    std::unique_ptr<network::response> get_tests(const network::request &req);
     std::unique_ptr<network::response> new_test(const network::request &req);
+
+    std::unique_ptr<network::response> get_exercises(const network::request &req);
     std::unique_ptr<network::response> new_exercise(const network::request &req);
 
   private:
